@@ -19,6 +19,19 @@ module.exports = {
         },
     },
     networks: {
+        hardhat: {
+            accounts: [
+                {
+                    "privateKey": `${process.env.PRIVATE_KEY}`,
+                    "balance": "100000000000000000000000000"
+                },
+                {
+                    "privateKey": `${process.env.PRIVATE_KEY2}`,
+                    "balance": "100000000000000000000000000"
+                },
+            ],
+            allowUnlimitedContractSize: true
+        },
         ropsten: {
             url: `https://ropsten.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
             accounts: [`${process.env.PRIVATE_KEY}`, `${process.env.PRIVATE_KEY2}`]
