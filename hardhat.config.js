@@ -20,16 +20,16 @@ module.exports = {
     },
     networks: {
         hardhat: {
-            accounts: [
-                {
-                    "privateKey": `${process.env.PRIVATE_KEY}`,
-                    "balance": "100000000000000000000000000"
-                },
-                {
-                    "privateKey": `${process.env.PRIVATE_KEY2}`,
-                    "balance": "100000000000000000000000000"
-                },
-            ],
+            // accounts: [
+            //     {
+            //         "privateKey": `${process.env.PRIVATE_KEY}`,
+            //         "balance": "100000000000000000000000000"
+            //     },
+            //     {
+            //         "privateKey": `${process.env.PRIVATE_KEY2}`,
+            //         "balance": "100000000000000000000000000"
+            //     },
+            // ],
             allowUnlimitedContractSize: true
         },
         ropsten: {
