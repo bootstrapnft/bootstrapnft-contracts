@@ -562,7 +562,7 @@ describe("Test Auction", function () {
 
 
     })
-    describe("three token pair Pool Flow", function () {
+    describe.only("three token pair Pool Flow", function () {
 
         let primaryProxyAddress;
         let poolAddress = ""
@@ -769,6 +769,50 @@ describe("Test Auction", function () {
 
             console.log("testMUMUTokenBalance", testMUMUTokenBalance)
             console.log("testLALATokenBalance", testLALATokenBalance)
+            console.log("usdcTokenBalance", usdcTokenBalance)
+        })
+        it("add liquidity single assets", async () => {
+
+            const joinswapExternAmountInData = ifac.encodeFunctionData("joinswapExternAmountIn", [
+                logCaller,
+                testMumuToken.address,
+                ethers.utils.parseEther("40").toString(),
+                "0"
+            ]);
+
+            let joinswapExternAmountInTx = await dsProxy.connect(primary).execute(bActions.address, joinswapExternAmountInData)
+
+            console.log("joinswapExternAmountInTx hash", joinswapExternAmountInTx.hash)
+
+            let crp = await ConfigurableRightsPool.attach(logCaller)
+            console.log("total supply",await crp.totalSupply())
+            expect(await crp.totalSupply()).to.equal("111868887103979119700")
+
+            let bpool = await BPool.attach(poolAddress)
+
+            let testTokenBalance = await bpool.getBalance(testMumuToken.address)
+            let usdcTokenBalance = await bpool.getBalance(usdc.address)
+
+            console.log("testTokenBalance", testTokenBalance)
+            console.log("usdcTokenBalance", usdcTokenBalance)
+        })
+        it("remove liquidity single assets", async () => {
+
+            let crp = await ConfigurableRightsPool.attach(logCaller)
+
+            let exitswapPoolAmountInTx = await crp.connect(primary).exitswapPoolAmountIn(
+                testMumuToken.address,
+                ethers.utils.parseEther("10").toString(),
+                "0"
+            )
+            console.log("exitswapPoolAmountInTx hash", exitswapPoolAmountInTx.hash)
+            expect(await crp.totalSupply()).to.equal("101868887103979119700")
+
+            let bpool = await BPool.attach(poolAddress)
+            let testTokenBalance = await bpool.getBalance(testMumuToken.address)
+            let usdcTokenBalance = await bpool.getBalance(usdc.address)
+
+            console.log("testTokenBalance", testTokenBalance)
             console.log("usdcTokenBalance", usdcTokenBalance)
         })
         it("set swap enable", async () => {
