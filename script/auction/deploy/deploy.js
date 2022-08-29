@@ -10,8 +10,6 @@ async function main() {
 
     let primary, alice, bob;
 
-
-
     const network = hre.network.name
 
     const RightsManager = await hre.ethers.getContractFactory("contracts/auction/libraries/RightsManager.sol:RightsManager");
@@ -22,7 +20,7 @@ async function main() {
     const BalancerSafeMath = await hre.ethers.getContractFactory("BalancerSafeMath");
     const BalancerSafeMathMock = await hre.ethers.getContractFactory("BalancerSafeMathMock");
 
-    if (network === 'localhost' || network === 'development' || network === 'rinkeby' || network === 'shibuya') {
+    if (network === 'localhost' || network === 'development' || network === 'rinkeby' || network === 'mumbai') {
         const bfactory = await BFactory.deploy();
         await bfactory.deployed();
         console.log("bfactory address:", bfactory.address)
@@ -58,18 +56,18 @@ async function main() {
     console.log("cRPFactory address:", cRPFactory.address)
 
 
-    if (network === 'development' || network === 'rinkeby' || network === 'shibuya') {
-        const ESPFactory = await hre.ethers.getContractFactory("ESPFactory",{
-            libraries: {
-                BalancerSafeMath: balancerSafeMath.address,
-                RightsManager:rightsManager.address,
-                SmartPoolManager:smartPoolManager.address,
-            },
-        });
-        const eSPFactory = await ESPFactory.deploy();
-        await eSPFactory.deployed();
-        console.log("eSPFactory address:", eSPFactory.address)
-    }
+    // if (network === 'localhost' || network === 'development' || network === 'rinkeby' || network === 'mumbai') {
+    //     const ESPFactory = await hre.ethers.getContractFactory("ESPFactory",{
+    //         libraries: {
+    //             BalancerSafeMath: balancerSafeMath.address,
+    //             RightsManager:rightsManager.address,
+    //             SmartPoolManager:smartPoolManager.address,
+    //         },
+    //     });
+    //     const eSPFactory = await ESPFactory.deploy();
+    //     await eSPFactory.deployed();
+    //     console.log("eSPFactory address:", eSPFactory.address)
+    // }
 
     const TToken = await hre.ethers.getContractFactory('TToken')
     const BActions = await hre.ethers.getContractFactory('BActions')
@@ -79,7 +77,7 @@ async function main() {
     const DSProxyFactory = await hre.ethers.getContractFactory('DSProxyFactory')
     const ProxyRegistry = await hre.ethers.getContractFactory('ProxyRegistry')
 
-    if (network === 'localhost' || network === 'development' || network === 'rinkeby' || network === 'moonbase') {
+    if (network === 'localhost' || network === 'development' || network === 'rinkeby' || network === 'mumbai') {
         const admin = accounts[0]
         console.log("admin address:", admin.address)
         //access information about your deployed contract instance
@@ -132,10 +130,10 @@ async function main() {
 
 
 
+        await bal.mint(admin.address,ethers.utils.parseUnits("145000", 18))
         await weth.mint(admin.address,ethers.utils.parseUnits("145000", 18))
         await dai.mint(admin.address,ethers.utils.parseUnits("145000", 18) )
         await usdc.mint(admin.address,ethers.utils.parseUnits("145000", 18))
-        await bal.mint(admin.address,ethers.utils.parseUnits("145000", 18) )
         await bal.transfer(redeem,ethers.utils.parseUnits("20000", 18))
 
     }
@@ -143,7 +141,7 @@ async function main() {
 
     const SorMultiCall = await hre.ethers.getContractFactory("sorMultiCall");
 
-    if (network === 'localhost' || network === 'development' || network === 'mumbai' || network === 'ropsten') {
+    if (network === 'localhost' || network === 'development' || network === 'rinkeby' || network === 'mumbai') {
         const sorMultiCall = await SorMultiCall.deploy();
         await sorMultiCall.deployed();
         console.log("sorMultiCall address:", sorMultiCall.address)
