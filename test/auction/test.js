@@ -6,6 +6,7 @@ const zeroAddr = "0x0000000000000000000000000000000000000000";
 
 const BActionABI = require("../../utils/contract/pool/BAction.json")
 const {Interface} = require("ethers/lib/utils");
+const {advanceBlockTo} = require("../../utils/utils");
 
 describe("Test Auction", function () {
     let primary, alice, bob;
@@ -382,7 +383,7 @@ describe("Test Auction", function () {
             console.log("joinswapExternAmountInTx hash", joinswapExternAmountInTx.hash)
 
             let crp = await ConfigurableRightsPool.attach(logCaller)
-            console.log("total supply",await crp.totalSupply())
+            console.log("total supply", await crp.totalSupply())
             expect(await crp.totalSupply()).to.equal("118321587213027381500")
 
             let bpool = await BPool.attach(poolAddress)
@@ -412,7 +413,6 @@ describe("Test Auction", function () {
             console.log("testTokenBalance", testTokenBalance)
             console.log("usdcTokenBalance", usdcTokenBalance)
         })
-
         it("set swap enable", async () => {
 
             let setPublicSwapData = ifac.encodeFunctionData("setPublicSwap", [
@@ -520,6 +520,71 @@ describe("Test Auction", function () {
             console.log("testTokenDWeight", testTokenDWeight)
             console.log("usdcTokenDWeight", usdcTokenDWeight)
         })
+        it("gradually  updateWeight", async () => {
+
+            let currentBlockNumber = await ethers.provider.getBlockNumber()
+            let startBlockNumber = currentBlockNumber + 10
+            let endBlockNumber = startBlockNumber + 20
+
+            let bpool = await BPool.attach(poolAddress)
+            testTokenWeight = await bpool.getNormalizedWeight(testMumuToken.address)
+            usdcTokenWeight = await bpool.getNormalizedWeight(usdc.address)
+
+            console.log("testTokenWeight", testTokenWeight)
+            console.log("usdcTokenWeight", usdcTokenWeight)
+            testTokenDWeight = await bpool.getDenormalizedWeight(testMumuToken.address)
+            usdcTokenDWeight = await bpool.getDenormalizedWeight(usdc.address)
+
+            console.log("testTokenDWeight", testTokenDWeight)
+            console.log("usdcTokenDWeight", usdcTokenDWeight)
+
+            const newWeights = [
+                ethers.utils.parseEther("15.22").toString(),
+                ethers.utils.parseEther("30.22").toString()
+            ];
+
+
+            const increaseWeightData = ifac.encodeFunctionData("updateWeightsGradually", [
+                logCaller,
+                newWeights,
+                startBlockNumber,
+                endBlockNumber,
+            ]);
+
+            let increaseWeightTx = await dsProxy.connect(primary).execute(bActions.address, increaseWeightData)
+            console.log("increaseWeightTx hash", increaseWeightTx.hash)
+            await advanceBlockTo(startBlockNumber + 1)
+            let crp = await ConfigurableRightsPool.attach(logCaller)
+
+            for (let i = startBlockNumber + 1; i < endBlockNumber; i++) {
+                console.log("current block:", await ethers.provider.getBlockNumber())
+                await crp.connect(primary).pokeWeights()
+                testTokenWeight = await bpool.getNormalizedWeight(testMumuToken.address)
+                usdcTokenWeight = await bpool.getNormalizedWeight(usdc.address)
+
+                console.log("testTokenWeight", testTokenWeight)
+                console.log("usdcTokenWeight", usdcTokenWeight)
+                testTokenDWeight = await bpool.getDenormalizedWeight(testMumuToken.address)
+                usdcTokenDWeight = await bpool.getDenormalizedWeight(usdc.address)
+
+                console.log("testTokenDWeight", testTokenDWeight)
+                console.log("usdcTokenDWeight", usdcTokenDWeight)
+            }
+            await advanceBlockTo(endBlockNumber + 1)
+
+            await crp.connect(primary).pokeWeights()
+            testTokenWeight = await bpool.getNormalizedWeight(testMumuToken.address)
+            usdcTokenWeight = await bpool.getNormalizedWeight(usdc.address)
+
+            console.log("testTokenWeight", testTokenWeight)
+            console.log("usdcTokenWeight", usdcTokenWeight)
+            testTokenDWeight = await bpool.getDenormalizedWeight(testMumuToken.address)
+            usdcTokenDWeight = await bpool.getDenormalizedWeight(usdc.address)
+
+            console.log("testTokenDWeight", testTokenDWeight)
+            console.log("usdcTokenDWeight", usdcTokenDWeight)
+
+        })
         it("swap in", async () => {
 
             let bpool = await BPool.attach(poolAddress)
@@ -559,7 +624,6 @@ describe("Test Auction", function () {
             console.log("usdcTokenBalance", usdcTokenBalance)
 
         })
-
 
     })
     describe.only("three token pair Pool Flow", function () {
@@ -785,7 +849,7 @@ describe("Test Auction", function () {
             console.log("joinswapExternAmountInTx hash", joinswapExternAmountInTx.hash)
 
             let crp = await ConfigurableRightsPool.attach(logCaller)
-            console.log("total supply",await crp.totalSupply())
+            console.log("total supply", await crp.totalSupply())
             expect(await crp.totalSupply()).to.equal("111868887103979119700")
 
             let bpool = await BPool.attach(poolAddress)
@@ -888,18 +952,20 @@ describe("Test Auction", function () {
         it("direct decreaseWeight", async () => {
 
             let bpool = await BPool.attach(poolAddress)
+            testMumuTokenWeight = await bpool.getNormalizedWeight(testMumuToken.address)
+            testLalaTokenWeight = await bpool.getNormalizedWeight(testLalalaToken.address)
+            usdcTokenWeight = await bpool.getNormalizedWeight(usdc.address)
 
-            let testTokenWeight = await bpool.getNormalizedWeight(testMumuToken.address)
-            let usdcTokenWeight = await bpool.getNormalizedWeight(usdc.address)
-            console.log("testTokenWeight", testTokenWeight)
+            console.log("testMumuTokenWeight", testMumuTokenWeight)
+            console.log("testLalaTokenWeight", testLalaTokenWeight)
             console.log("usdcTokenWeight", usdcTokenWeight)
+            testMumuTokenDWeight = await bpool.getDenormalizedWeight(testMumuToken.address)
+            testLalaTokenDWeight = await bpool.getDenormalizedWeight(testLalalaToken.address)
+            usdcTokenDWeight = await bpool.getDenormalizedWeight(usdc.address)
 
-            let testTokenDWeight = await bpool.getDenormalizedWeight(testMumuToken.address)
-            let usdcTokenDWeight = await bpool.getDenormalizedWeight(usdc.address)
-
-            console.log("testTokenDWeight", testTokenDWeight)
+            console.log("testMumuTokenDWeight", testMumuTokenDWeight)
+            console.log("testLalaTokenDWeight", testLalaTokenDWeight)
             console.log("usdcTokenDWeight", usdcTokenDWeight)
-
 
             let crp = await ConfigurableRightsPool.attach(logCaller)
             await crp.connect(primary).approve(dsProxy.address, ethers.utils.parseEther("1000").toString())
@@ -915,16 +981,98 @@ describe("Test Auction", function () {
             let decreaseWeightTx = await dsProxy.connect(primary).execute(bActions.address, decreaseWeightData)
             console.log("decreaseWeightTx hash", decreaseWeightTx.hash)
 
-            testTokenWeight = await bpool.getNormalizedWeight(testMumuToken.address)
+            testMumuTokenWeight = await bpool.getNormalizedWeight(testMumuToken.address)
+            testLalaTokenWeight = await bpool.getNormalizedWeight(testLalalaToken.address)
             usdcTokenWeight = await bpool.getNormalizedWeight(usdc.address)
 
-            console.log("testTokenWeight", testTokenWeight)
+            console.log("testMumuTokenWeight", testMumuTokenWeight)
+            console.log("testLalaTokenWeight", testLalaTokenWeight)
             console.log("usdcTokenWeight", usdcTokenWeight)
-            testTokenDWeight = await bpool.getDenormalizedWeight(testMumuToken.address)
+            testMumuTokenDWeight = await bpool.getDenormalizedWeight(testMumuToken.address)
+            testLalaTokenDWeight = await bpool.getDenormalizedWeight(testLalalaToken.address)
             usdcTokenDWeight = await bpool.getDenormalizedWeight(usdc.address)
 
-            console.log("testTokenDWeight", testTokenDWeight)
+            console.log("testMumuTokenDWeight", testMumuTokenDWeight)
+            console.log("testLalaTokenDWeight", testLalaTokenDWeight)
             console.log("usdcTokenDWeight", usdcTokenDWeight)
+        })
+        it("gradually  updateWeight", async () => {
+
+            let currentBlockNumber = await ethers.provider.getBlockNumber()
+            let startBlockNumber = currentBlockNumber + 10
+            let endBlockNumber = startBlockNumber + 20
+
+            let bpool = await BPool.attach(poolAddress)
+            testMumuTokenWeight = await bpool.getNormalizedWeight(testMumuToken.address)
+            testLalaTokenWeight = await bpool.getNormalizedWeight(testLalalaToken.address)
+            usdcTokenWeight = await bpool.getNormalizedWeight(usdc.address)
+
+            console.log("testMumuTokenWeight", testMumuTokenWeight)
+            console.log("testLalaTokenWeight", testLalaTokenWeight)
+            console.log("usdcTokenWeight", usdcTokenWeight)
+            testMumuTokenDWeight = await bpool.getDenormalizedWeight(testMumuToken.address)
+            testLalaTokenDWeight = await bpool.getDenormalizedWeight(testLalalaToken.address)
+            usdcTokenDWeight = await bpool.getDenormalizedWeight(usdc.address)
+
+            console.log("testMumuTokenDWeight", testMumuTokenDWeight)
+            console.log("testLalaTokenDWeight", testLalaTokenDWeight)
+            console.log("usdcTokenDWeight", usdcTokenDWeight)
+
+            const newWeights = [
+                ethers.utils.parseEther("9.11").toString(),
+                ethers.utils.parseEther("15.11").toString(),
+                ethers.utils.parseEther("15.11").toString()
+            ];
+
+
+            const increaseWeightData = ifac.encodeFunctionData("updateWeightsGradually", [
+                logCaller,
+                newWeights,
+                startBlockNumber,
+                endBlockNumber,
+            ]);
+
+            let increaseWeightTx = await dsProxy.connect(primary).execute(bActions.address, increaseWeightData)
+            console.log("increaseWeightTx hash", increaseWeightTx.hash)
+            await advanceBlockTo(startBlockNumber + 1)
+            let crp = await ConfigurableRightsPool.attach(logCaller)
+
+            for (let i = startBlockNumber + 1; i < endBlockNumber; i++) {
+                console.log("current block:", await ethers.provider.getBlockNumber())
+                await crp.connect(primary).pokeWeights()
+                testMumuTokenWeight = await bpool.getNormalizedWeight(testMumuToken.address)
+                testLalaTokenWeight = await bpool.getNormalizedWeight(testLalalaToken.address)
+                usdcTokenWeight = await bpool.getNormalizedWeight(usdc.address)
+
+                console.log("testMumuTokenWeight", testMumuTokenWeight)
+                console.log("testLalaTokenWeight", testLalaTokenWeight)
+                console.log("usdcTokenWeight", usdcTokenWeight)
+                testMumuTokenDWeight = await bpool.getDenormalizedWeight(testMumuToken.address)
+                testLalaTokenDWeight = await bpool.getDenormalizedWeight(testLalalaToken.address)
+                usdcTokenDWeight = await bpool.getDenormalizedWeight(usdc.address)
+
+                console.log("testMumuTokenDWeight", testMumuTokenDWeight)
+                console.log("testLalaTokenDWeight", testLalaTokenDWeight)
+                console.log("usdcTokenDWeight", usdcTokenDWeight)
+            }
+            await advanceBlockTo(endBlockNumber + 1)
+
+            await crp.connect(primary).pokeWeights()
+            testMumuTokenWeight = await bpool.getNormalizedWeight(testMumuToken.address)
+            testLalaTokenWeight = await bpool.getNormalizedWeight(testLalalaToken.address)
+            usdcTokenWeight = await bpool.getNormalizedWeight(usdc.address)
+
+            console.log("testMumuTokenWeight", testMumuTokenWeight)
+            console.log("testLalaTokenWeight", testLalaTokenWeight)
+            console.log("usdcTokenWeight", usdcTokenWeight)
+            testMumuTokenDWeight = await bpool.getDenormalizedWeight(testMumuToken.address)
+            testLalaTokenDWeight = await bpool.getDenormalizedWeight(testLalalaToken.address)
+            usdcTokenDWeight = await bpool.getDenormalizedWeight(usdc.address)
+
+            console.log("testMumuTokenDWeight", testMumuTokenDWeight)
+            console.log("testLalaTokenDWeight", testLalaTokenDWeight)
+            console.log("usdcTokenDWeight", usdcTokenDWeight)
+
         })
         it("swap in", async () => {
 
