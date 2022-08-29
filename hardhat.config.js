@@ -14,7 +14,7 @@ module.exports = {
         settings: {
             optimizer: {
                 enabled: true,
-                runs: 1000,
+                runs: 200,
             },
         },
     },
@@ -30,7 +30,7 @@ module.exports = {
             //         "balance": "100000000000000000000000000"
             //     },
             // ],
-            allowUnlimitedContractSize: true
+            allowUnlimitedContractSize: false
         },
         ropsten: {
             url: `https://ropsten.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
@@ -53,7 +53,7 @@ module.exports = {
             accounts: [`${process.env.PRIVATE_KEY}`, `${process.env.PRIVATE_KEY2}`]
         },
         mumbai: {
-            url: `https://rpc-mumbai.matic.today`,
+            url: `https://polygon-testnet.public.blastapi.io`,
             accounts: [`${process.env.PRIVATE_KEY}`, `${process.env.PRIVATE_KEY2}`]
         },
         aurora: {
