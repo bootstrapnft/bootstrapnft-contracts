@@ -179,12 +179,12 @@ describe("Test Auction", function () {
 
     })
 
-    describe("two token pair Pool Flow", function () {
+    describe.only("two token pair Pool Flow", function () {
 
         let primaryProxyAddress;
-        let poolAddress = ""
-        let logCaller = ""
-        let ifac
+        let crpPoolAddress = ""
+        let bpoolAddress = ""
+        let bactionIfac = new Interface(BActionABI);
 
         const initialSupply = ethers.utils
             .parseEther("100")
@@ -207,15 +207,14 @@ describe("Test Auction", function () {
                 await proxyRegistry.connect(primary)["build()"]()
             }
             primaryProxyAddress = await proxyRegistry.proxies(primary.address)
-            console.log("primaryProxyAddress is :", primaryProxyAddress)
+            // console.log("primaryProxyAddress is :", primaryProxyAddress)
             expect(primaryProxyAddress).not.equal(zeroAddr)
             let aliceProxyAddress = await proxyRegistry.proxies(alice.address)
-            console.log("aliceProxyAddress is :", aliceProxyAddress)
+            // console.log("aliceProxyAddress is :", aliceProxyAddress)
             expect(aliceProxyAddress).to.equal(zeroAddr)
         });
 
         it("createPool", async () => {
-
             const tokenBal = [
                 ethers.utils.parseEther("100").toString(),
                 ethers.utils.parseEther("100").toString()
@@ -224,7 +223,6 @@ describe("Test Auction", function () {
                 ethers.utils.parseEther("22.22").toString(),
                 ethers.utils.parseEther("22.22").toString()
             ];
-
             const rights = {
                 canAddRemoveTokens: false,
                 canChangeCap: false,
@@ -233,7 +231,14 @@ describe("Test Auction", function () {
                 canPauseSwapping: true,
                 canWhitelistLPs: false,
             };
-
+            const disableRights = {
+                canAddRemoveTokens: false,
+                canChangeCap: false,
+                canChangeSwapFee: false,
+                canChangeWeights: false,
+                canPauseSwapping: false,
+                canWhitelistLPs: false,
+            };
             const tokens = [
                 testMumuToken.address,
                 usdc.address
@@ -255,17 +260,8 @@ describe("Test Auction", function () {
 
             const crpFactory = cRPFactory.address;
             const bFactory = bfactory.address;
-            ifac = new Interface(BActionABI);
 
-
-            console.log("ifac", [
-                crpFactory,
-                bFactory,
-                poolParams,
-                crpParams,
-                rights,
-            ]);
-            const data = ifac.encodeFunctionData("createSmartPool", [
+            const data = bactionIfac.encodeFunctionData("createSmartPool", [
                 crpFactory,
                 bFactory,
                 poolParams,
@@ -279,46 +275,57 @@ describe("Test Auction", function () {
             await testMumuToken.connect(primary).approve(dsProxy.address, ethers.utils.parseEther("1000").toString())
             await usdc.connect(primary).approve(dsProxy.address, ethers.utils.parseEther("1000").toString())
 
+
+            let testMumuTokenBeforeBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenBeforeBal = await usdc.balanceOf(primary.address)
+
             let tx = await dsProxy.connect(primary).execute(bActions.address, data)
-
-            console.log("tx hash", tx.hash)
-
             const receipt = await tx.wait()
-            // console.log(receipt.logs)
             let newPoolTopic = "0x8ccec77b0cb63ac2cafd0f5de8cdfadab91ce656d262240ba8a6343bccc5f945"
-
             let abi = ["event LOG_NEW_POOL(address indexed caller, address indexed pool)"];
             let iface = new ethers.utils.Interface(abi);
-            let poolAddressHashStr = ""
             for (let i = 0; i < receipt.logs.length; i++) {
                 let logTemp = receipt.logs[i];
                 if (logTemp.topics[0] === newPoolTopic) {
-                    poolAddressHashStr = logTemp.topics[2]
                     let parsedLog = iface.parseLog(logTemp)
-                    logCaller = parsedLog.args["caller"]
-                    poolAddress = parsedLog.args["pool"]
+                    crpPoolAddress = parsedLog.args["caller"]
+                    bpoolAddress = parsedLog.args["pool"]
                     break;
                 }
             }
-            console.log("logCaller", logCaller)
-            console.log("poolAddress", poolAddress)
-            let crp = await ConfigurableRightsPool.attach(logCaller)
+            console.log("logCaller", crpPoolAddress)
+            console.log("poolAddress", bpoolAddress)
+            let crp = await ConfigurableRightsPool.attach(crpPoolAddress)
             expect(await crp.symbol()).to.equal(poolTokenSymbol)
             expect(await crp.name()).to.equal(poolTokenName)
             expect(await crp.totalSupply()).to.equal(initialSupply)
+            console.log("primary balanceOf", await crp.balanceOf(primary.address))
+            expect(await crp.balanceOf(primary.address)).to.equal(initialSupply)
 
-            let bpool = await BPool.attach(poolAddress)
+            let bpool = await BPool.attach(bpoolAddress)
             let numTokens = await bpool.getNumTokens()
             let currentTokens = await bpool.getCurrentTokens()
 
             expect(numTokens).to.equal(2)
             expect(currentTokens[0]).to.equal(testMumuToken.address)
             expect(currentTokens[1]).to.equal(usdc.address)
+            expect(await bpool.getBalance(testMumuToken.address)).to.equal(ethers.utils.parseEther("100").toString())
+            expect(await bpool.getBalance(usdc.address)).to.equal(ethers.utils.parseEther("100").toString())
+            expect(await bpool.getDenormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("22.22").toString())
+            expect(await bpool.getDenormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("22.22").toString())
+            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("0.5").toString())
+            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("0.5").toString())
+
+            let testMumuTokenAfterBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenAfterBal = await usdc.balanceOf(primary.address)
+
+            expect(testMumuTokenBeforeBal.sub(testMumuTokenAfterBal)).to.equal(ethers.utils.parseEther("100").toString())
+            expect(usdcTokenBeforeBal.sub(usdcTokenAfterBal)).to.equal(ethers.utils.parseEther("100").toString())
         })
         it("add liquidity multi assets", async () => {
 
-            const joinSmartPoolData = ifac.encodeFunctionData("joinSmartPool", [
-                logCaller,
+            const joinSmartPoolData = bactionIfac.encodeFunctionData("joinSmartPool", [
+                crpPoolAddress,
                 ethers.utils.parseEther("100").toString(),
                 [
                     ethers.utils.parseEther("200").toString(),
@@ -330,14 +337,14 @@ describe("Test Auction", function () {
 
             console.log("joinSmartPoolTx hash", joinSmartPoolTx.hash)
 
-            let crp = await ConfigurableRightsPool.attach(logCaller)
+            let crp = await ConfigurableRightsPool.attach(crpPoolAddress)
             expect(await crp.symbol()).to.equal(poolTokenSymbol)
             expect(await crp.name()).to.equal(poolTokenName)
             expect(await crp.totalSupply()).to.equal(ethers.utils
                 .parseEther("200")
                 .toString())
 
-            let bpool = await BPool.attach(poolAddress)
+            let bpool = await BPool.attach(bpoolAddress)
             let numTokens = await bpool.getNumTokens()
             let currentTokens = await bpool.getCurrentTokens()
 
@@ -347,7 +354,7 @@ describe("Test Auction", function () {
         })
         it("remove liquidity multi assets", async () => {
 
-            let crp = await ConfigurableRightsPool.attach(logCaller)
+            let crp = await ConfigurableRightsPool.attach(crpPoolAddress)
 
             let exitPoolTx = await crp.connect(primary).exitPool(
                 ethers.utils.parseEther("100").toString(),
@@ -361,7 +368,7 @@ describe("Test Auction", function () {
                 .parseEther("100")
                 .toString())
 
-            let bpool = await BPool.attach(poolAddress)
+            let bpool = await BPool.attach(bpoolAddress)
             let numTokens = await bpool.getNumTokens()
             let currentTokens = await bpool.getCurrentTokens()
 
@@ -371,8 +378,8 @@ describe("Test Auction", function () {
         })
         it("add liquidity single assets", async () => {
 
-            const joinswapExternAmountInData = ifac.encodeFunctionData("joinswapExternAmountIn", [
-                logCaller,
+            const joinswapExternAmountInData = bactionIfac.encodeFunctionData("joinswapExternAmountIn", [
+                crpPoolAddress,
                 testMumuToken.address,
                 ethers.utils.parseEther("40").toString(),
                 "0"
@@ -382,11 +389,11 @@ describe("Test Auction", function () {
 
             console.log("joinswapExternAmountInTx hash", joinswapExternAmountInTx.hash)
 
-            let crp = await ConfigurableRightsPool.attach(logCaller)
+            let crp = await ConfigurableRightsPool.attach(crpPoolAddress)
             console.log("total supply", await crp.totalSupply())
             expect(await crp.totalSupply()).to.equal("118321587213027381500")
 
-            let bpool = await BPool.attach(poolAddress)
+            let bpool = await BPool.attach(bpoolAddress)
 
             let testTokenBalance = await bpool.getBalance(testMumuToken.address)
             let usdcTokenBalance = await bpool.getBalance(usdc.address)
@@ -396,7 +403,7 @@ describe("Test Auction", function () {
         })
         it("remove liquidity single assets", async () => {
 
-            let crp = await ConfigurableRightsPool.attach(logCaller)
+            let crp = await ConfigurableRightsPool.attach(crpPoolAddress)
 
             let exitswapPoolAmountInTx = await crp.connect(primary).exitswapPoolAmountIn(
                 testMumuToken.address,
@@ -406,7 +413,7 @@ describe("Test Auction", function () {
             console.log("exitswapPoolAmountInTx hash", exitswapPoolAmountInTx.hash)
             expect(await crp.totalSupply()).to.equal("98321587213027381500")
 
-            let bpool = await BPool.attach(poolAddress)
+            let bpool = await BPool.attach(bpoolAddress)
             let testTokenBalance = await bpool.getBalance(testMumuToken.address)
             let usdcTokenBalance = await bpool.getBalance(usdc.address)
 
@@ -415,8 +422,8 @@ describe("Test Auction", function () {
         })
         it("set swap enable", async () => {
 
-            let setPublicSwapData = ifac.encodeFunctionData("setPublicSwap", [
-                logCaller,
+            let setPublicSwapData = bactionIfac.encodeFunctionData("setPublicSwap", [
+                crpPoolAddress,
                 false,
             ]);
 
@@ -425,12 +432,12 @@ describe("Test Auction", function () {
             console.log("setPublicSwapTx hash", setPublicSwapTx.hash)
 
 
-            let crp = await ConfigurableRightsPool.attach(logCaller)
+            let crp = await ConfigurableRightsPool.attach(crpPoolAddress)
 
             expect(await crp.isPublicSwap()).to.equal(false)
 
-            setPublicSwapData = ifac.encodeFunctionData("setPublicSwap", [
-                logCaller,
+            setPublicSwapData = bactionIfac.encodeFunctionData("setPublicSwap", [
+                crpPoolAddress,
                 true,
             ]);
 
@@ -445,20 +452,20 @@ describe("Test Auction", function () {
                 .div(100)
                 .toString();
 
-            const setSwapFeeData = ifac.encodeFunctionData("setSwapFee", [
-                logCaller,
+            const setSwapFeeData = bactionIfac.encodeFunctionData("setSwapFee", [
+                crpPoolAddress,
                 newSwapFee,
             ]);
 
             let setSwapFeeTx = await dsProxy.connect(primary).execute(bActions.address, setSwapFeeData)
             console.log("setSwapFeeTx hash", setSwapFeeTx.hash)
-            let bpool = await BPool.attach(poolAddress)
+            let bpool = await BPool.attach(bpoolAddress)
             expect(await bpool.getSwapFee()).to.equal(newSwapFee)
         })
         it("direct increaseWeight", async () => {
 
-            const increaseWeightData = ifac.encodeFunctionData("increaseWeight", [
-                logCaller,
+            const increaseWeightData = bactionIfac.encodeFunctionData("increaseWeight", [
+                crpPoolAddress,
                 testMumuToken.address,
                 ethers.utils.parseEther("27"),
                 ethers.utils.parseEther("100").toString(),
@@ -467,7 +474,7 @@ describe("Test Auction", function () {
 
             let increaseWeightTx = await dsProxy.connect(primary).execute(bActions.address, increaseWeightData)
             console.log("increaseWeightTx hash", increaseWeightTx.hash)
-            let bpool = await BPool.attach(poolAddress)
+            let bpool = await BPool.attach(bpoolAddress)
             testTokenWeight = await bpool.getNormalizedWeight(testMumuToken.address)
             usdcTokenWeight = await bpool.getNormalizedWeight(usdc.address)
 
@@ -481,7 +488,7 @@ describe("Test Auction", function () {
         })
         it("direct decreaseWeight", async () => {
 
-            let bpool = await BPool.attach(poolAddress)
+            let bpool = await BPool.attach(bpoolAddress)
 
             let testTokenWeight = await bpool.getNormalizedWeight(testMumuToken.address)
             let usdcTokenWeight = await bpool.getNormalizedWeight(usdc.address)
@@ -495,12 +502,12 @@ describe("Test Auction", function () {
             console.log("usdcTokenDWeight", usdcTokenDWeight)
 
 
-            let crp = await ConfigurableRightsPool.attach(logCaller)
+            let crp = await ConfigurableRightsPool.attach(crpPoolAddress)
             await crp.connect(primary).approve(dsProxy.address, ethers.utils.parseEther("1000").toString())
 
 
-            const decreaseWeightData = ifac.encodeFunctionData("decreaseWeight", [
-                logCaller,
+            const decreaseWeightData = bactionIfac.encodeFunctionData("decreaseWeight", [
+                crpPoolAddress,
                 testMumuToken.address,
                 ethers.utils.parseEther("20"),
                 ethers.utils.parseEther("100").toString(),
@@ -526,7 +533,7 @@ describe("Test Auction", function () {
             let startBlockNumber = currentBlockNumber + 10
             let endBlockNumber = startBlockNumber + 20
 
-            let bpool = await BPool.attach(poolAddress)
+            let bpool = await BPool.attach(bpoolAddress)
             testTokenWeight = await bpool.getNormalizedWeight(testMumuToken.address)
             usdcTokenWeight = await bpool.getNormalizedWeight(usdc.address)
 
@@ -544,8 +551,8 @@ describe("Test Auction", function () {
             ];
 
 
-            const increaseWeightData = ifac.encodeFunctionData("updateWeightsGradually", [
-                logCaller,
+            const increaseWeightData = bactionIfac.encodeFunctionData("updateWeightsGradually", [
+                crpPoolAddress,
                 newWeights,
                 startBlockNumber,
                 endBlockNumber,
@@ -554,7 +561,7 @@ describe("Test Auction", function () {
             let increaseWeightTx = await dsProxy.connect(primary).execute(bActions.address, increaseWeightData)
             console.log("increaseWeightTx hash", increaseWeightTx.hash)
             await advanceBlockTo(startBlockNumber + 1)
-            let crp = await ConfigurableRightsPool.attach(logCaller)
+            let crp = await ConfigurableRightsPool.attach(crpPoolAddress)
 
             for (let i = startBlockNumber + 1; i < endBlockNumber; i++) {
                 console.log("current block:", await ethers.provider.getBlockNumber())
@@ -587,7 +594,7 @@ describe("Test Auction", function () {
         })
         it("swap in", async () => {
 
-            let bpool = await BPool.attach(poolAddress)
+            let bpool = await BPool.attach(bpoolAddress)
             await testMumuToken.connect(primary).approve(exchangeProxy.address, ethers.utils.parseEther("1000").toString())
             await usdc.connect(primary).approve(exchangeProxy.address, ethers.utils.parseEther("1000").toString())
 
@@ -599,7 +606,7 @@ describe("Test Auction", function () {
             console.log("usdcTokenBalance", usdcTokenBalance)
 
             let swap = {
-                pool: poolAddress,
+                pool: bpoolAddress,
                 tokenIn: usdc.address,
                 tokenOut: testMumuToken.address,
                 swapAmount: ethers.utils.parseEther("10").toString(),
@@ -626,7 +633,7 @@ describe("Test Auction", function () {
         })
 
     })
-    describe.only("three token pair Pool Flow", function () {
+    describe("three token pair Pool Flow", function () {
 
         let primaryProxyAddress;
         let poolAddress = ""
