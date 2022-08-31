@@ -2,10 +2,10 @@
 
 pragma solidity ^0.8.0;
 
-import "./INFTXVaultFactory.sol";
+import "./IVaultFactory.sol";
 
-interface INFTXInventoryStaking {
-    function nftxVaultFactory() external view returns (INFTXVaultFactory);
+interface IInventoryStaking {
+    function nftxVaultFactory() external view returns (IVaultFactory);
     function vaultXToken(uint256 vaultId) external view returns (address);
     function xTokenAddr(address baseToken) external view returns (address);
     function xTokenShareValue(uint256 vaultId) external view returns (uint256);

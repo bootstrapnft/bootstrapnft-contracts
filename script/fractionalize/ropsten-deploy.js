@@ -41,14 +41,14 @@ async function main() {
   await provider.deployed();
   console.log("StakingTokenProvider:", provider.address);
 
-  const Staking = await ethers.getContractFactory("NFTXLPStaking");
+  const Staking = await ethers.getContractFactory("LPStaking");
   staking = await upgrades.deployProxy(Staking, [provider.address], {
     initializer: "__NFTXLPStaking__init",
   });
   await staking.deployed();
   console.log("Staking:", staking.address);
 
-  const Vault = await ethers.getContractFactory("NFTXVaultUpgradeable");
+  const Vault = await ethers.getContractFactory("VaultUpgradeable");
   const vault = await Vault.deploy();
   await vault.deployed();
   console.log("Vault template:", vault.address);
@@ -64,7 +64,7 @@ async function main() {
   await feeDistrib.deployed();
   console.log("FeeDistributor:", feeDistrib.address);
 
-  const Nftx = await ethers.getContractFactory("NFTXVaultFactoryUpgradeable");
+  const Nftx = await ethers.getContractFactory("VaultFactoryUpgradeable");
   nftx = await upgrades.deployProxy(Nftx, [vault.address, feeDistrib.address], {
     initializer: "__NFTXVaultFactory_init",
   });

@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.0;
 
-import "../interface/INFTXVault.sol";
-import "../interface/INFTXVaultFactory.sol";
+import "../interface/IVault.sol";
+import "../interface/IVaultFactory.sol";
 import "../interface/IERC3156Upgradeable.sol";
 import "../token/ERC20Upgradeable.sol";
 
@@ -16,7 +16,7 @@ interface ClaimToken {
 
 contract NFTXFlashSwipe is IERC3156FlashBorrowerUpgradeable {
   uint256 constant BASE = 1e18;
-  INFTXVaultFactory public nftxFactory;
+  IVaultFactory public nftxFactory;
   
   ClaimToken NCT = ClaimToken(0x8A9c4dfe8b9D8962B31e4e16F8321C44d48e246E);
   ClaimToken WET = ClaimToken(0x76280AF9D18a868a0aF3dcA95b57DDE816c1aaf2);
@@ -49,8 +49,8 @@ contract NFTXFlashSwipe is IERC3156FlashBorrowerUpgradeable {
     require(operator == msg.sender, "No frontrun pls");
     address vault = nftxFactory.vault(vaultId);
     // Calculate and pull mint/redeem fees.
-    uint256 targetRedeemFee = INFTXVault(vault).targetRedeemFee() * specificIds.length;
-    uint256 mintFee = INFTXVault(vault).mintFee() * count;
+    uint256 targetRedeemFee = IVault(vault).targetRedeemFee() * specificIds.length;
+    uint256 mintFee = IVault(vault).mintFee() * count;
     IERC20Upgradeable(vault).transferFrom(msg.sender, address(this), mintFee + targetRedeemFee);
 
     // Approve flash loan amount.
@@ -97,11 +97,11 @@ contract NFTXFlashSwipe is IERC3156FlashBorrowerUpgradeable {
   }
 
   function flashRedeem(VaultData memory loanData) internal returns (uint256[] memory) {
-    return INFTXVault(loanData.vaultAddr).redeem(loanData.count, loanData.specificIds);
+    return IVault(loanData.vaultAddr).redeem(loanData.count, loanData.specificIds);
   }
 
   function flashMint(address vault, uint256[] memory specificIds) internal {
     uint256[] memory empty;
-    INFTXVault(vault).mint(specificIds, empty);
+    IVault(vault).mint(specificIds, empty);
   }
 }

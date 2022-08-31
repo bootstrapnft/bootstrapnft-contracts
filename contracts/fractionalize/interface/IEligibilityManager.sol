@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-interface INFTXEligibilityManager {
+interface IEligibilityManager {
     function nftxVaultFactory() external returns (address);
     function eligibilityImpl() external returns (address);
 

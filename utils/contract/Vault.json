@@ -1350,7 +1350,7 @@
     "name": "vaultFactory",
     "outputs": [
       {
-        "internalType": "contract INFTXVaultFactory",
+        "internalType": "contract IVaultFactory",
         "name": "",
         "type": "address"
       }

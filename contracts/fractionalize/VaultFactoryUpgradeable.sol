@@ -2,20 +2,20 @@
 
 pragma solidity ^0.8.0;
 
-import "./interface/INFTXVaultFactory.sol";
-import "./interface/INFTXFeeDistributor.sol";
+import "./interface/IVaultFactory.sol";
+import "./interface/IFeeDistributor.sol";
 import "./proxy/ClonesUpgradeable.sol";
 import "./proxy/BeaconProxy.sol";
 import "./proxy/UpgradeableBeacon.sol";
 import "./util/PausableUpgradeable.sol";
-import "./NFTXVaultUpgradeable.sol";
+import "./VaultUpgradeable.sol";
 
 // Authors: @0xKiwi_ and @alexgausman.
 
-contract NFTXVaultFactoryUpgradeable is
+contract VaultFactoryUpgradeable is
     PausableUpgradeable,
     UpgradeableBeacon,
-    INFTXVaultFactory
+    IVaultFactory
 {
     address public override feeDistributor;
     mapping(address => address[]) _vaultsForAsset;
@@ -63,7 +63,7 @@ contract NFTXVaultFactoryUpgradeable is
         uint256 _vaultId = vaults.length;
         _vaultsForAsset[_assetAddress].push(vaultAddr);
         vaults.push(vaultAddr);
-        INFTXFeeDistributor(feeDistributor).initializeVaultReceivers(_vaultId);
+        IFeeDistributor(feeDistributor).initializeVaultReceivers(_vaultId);
         emit NewVault(_vaultId, vaultAddr, _assetAddress);
         return _vaultId;
     }
@@ -182,11 +182,11 @@ contract NFTXVaultFactoryUpgradeable is
         bool allowAllItems
     ) internal returns (address) {
         address newBeaconProxy = address(new BeaconProxy(address(this), ""));
-        NFTXVaultUpgradeable(newBeaconProxy).__NFTXVault_init(name, symbol, _assetAddress, is1155, allowAllItems);
+        VaultUpgradeable(newBeaconProxy).__NFTXVault_init(name, symbol, _assetAddress, is1155, allowAllItems);
         // Manager for configuration.
-        NFTXVaultUpgradeable(newBeaconProxy).setManager(msg.sender);
+        VaultUpgradeable(newBeaconProxy).setManager(msg.sender);
         // Owner for administrative functions.
-        NFTXVaultUpgradeable(newBeaconProxy).transferOwnership(owner());
+        VaultUpgradeable(newBeaconProxy).transferOwnership(owner());
         return newBeaconProxy;
     }
 }

@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-interface INFTXLPStaking {
+interface ILPStaking {
     function nftxVaultFactory() external view returns (address);
     function rewardDistTokenImpl() external view returns (address);
     function stakingTokenProvider() external view returns (address);

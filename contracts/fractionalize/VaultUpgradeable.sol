@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8.0;
 
-import "./interface/INFTXVault.sol";
-import "./interface/INFTXVaultFactory.sol";
-import "./interface/INFTXFeeDistributor.sol";
+import "./interface/IVault.sol";
+import "./interface/IVaultFactory.sol";
+import "./interface/IFeeDistributor.sol";
 import "./token/ERC20FlashMintUpgradeable.sol";
 import "./token/ERC721SafeHolderUpgradeable.sol";
 import "./token/ERC1155SafeHolderUpgradeable.sol";
@@ -16,13 +16,13 @@ import "./util/EnumerableSetUpgradeable.sol";
 
 // Authors: @0xKiwi_ and @alexgausman.
 
-contract NFTXVaultUpgradeable is
+contract VaultUpgradeable is
     OwnableUpgradeable,
     ERC20FlashMintUpgradeable,
     ReentrancyGuardUpgradeable,
     ERC721SafeHolderUpgradeable,
     ERC1155SafeHolderUpgradeable,
-    INFTXVault
+    IVault
 {
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.UintSet;
 
@@ -31,7 +31,7 @@ contract NFTXVaultUpgradeable is
     uint256 public override vaultId;
     address public override manager;
     address public override assetAddress;
-    INFTXVaultFactory public override vaultFactory;
+    IVaultFactory public override vaultFactory;
 
     uint256 randNonce;
 
@@ -60,7 +60,7 @@ contract NFTXVaultUpgradeable is
         __ERC20_init(_name, _symbol);
         require(_assetAddress != address(0), "Asset != address(0)");
         assetAddress = _assetAddress;
-        vaultFactory = INFTXVaultFactory(msg.sender);
+        vaultFactory = IVaultFactory(msg.sender);
         vaultId = vaultFactory.numVaults();
         is1155 = _is1155;
         allowAllItems = _allowAllItems;
@@ -396,7 +396,7 @@ contract NFTXVaultUpgradeable is
         // Do not charge fees if the zap contract is calling
         // Added in v1.0.3. Changed to mapping in v1.0.5.
 
-        INFTXVaultFactory _vaultFactory = vaultFactory;
+        IVaultFactory _vaultFactory = vaultFactory;
 
         if (_vaultFactory.excludedFromFees(msg.sender)) {
             return;
@@ -407,7 +407,7 @@ contract NFTXVaultUpgradeable is
             address feeDistributor = _vaultFactory.feeDistributor();
             // Changed to a _transfer() in v1.0.3.
             _transfer(user, feeDistributor, amount);
-            INFTXFeeDistributor(feeDistributor).distribute(vaultId);
+            IFeeDistributor(feeDistributor).distribute(vaultId);
         }
     }
 

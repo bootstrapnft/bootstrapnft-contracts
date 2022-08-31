@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "./interface/INFTXVaultFactory.sol";
+import "./interface/IVaultFactory.sol";
 import "./interface/IRewardDistributionToken.sol";
 import "./token/IERC20Upgradeable.sol";
 import "./util/SafeERC20Upgradeable.sol";
@@ -16,10 +16,10 @@ import "./token/TimelockRewardDistributionTokenImpl.sol";
 // Pausing codes for LP staking are:
 // 10: Deposit
 
-contract NFTXLPStaking is PausableUpgradeable {
+contract LPStaking is PausableUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
-    INFTXVaultFactory public nftxVaultFactory;
+    IVaultFactory public nftxVaultFactory;
     IRewardDistributionToken public rewardDistTokenImpl;
     StakingTokenProvider public stakingTokenProvider;
 
@@ -51,7 +51,7 @@ contract NFTXLPStaking is PausableUpgradeable {
 
     function setNFTXVaultFactory(address newFactory) external onlyOwner {
         require(address(nftxVaultFactory) == address(0), "nftxVaultFactory is immutable");
-        nftxVaultFactory = INFTXVaultFactory(newFactory);
+        nftxVaultFactory = IVaultFactory(newFactory);
     }
 
     function setStakingTokenProvider(address newProvider) external onlyOwner {

@@ -33,19 +33,19 @@ describe("Main", function () {
     const provider = await StakingProvider.deploy();
     await provider.deployed();
 
-    const Staking = await ethers.getContractFactory("NFTXLPStaking");
+    const Staking = await ethers.getContractFactory("LPStaking");
     staking = await upgrades.deployProxy(Staking, [provider.address], {
       initializer: "__NFTXLPStaking__init",
       unsafeAllow: 'delegatecall'
     });
     await staking.deployed();
 
-    const Vault = await ethers.getContractFactory("NFTXVaultUpgradeable");
+    const Vault = await ethers.getContractFactory("VaultUpgradeable");
     const vault = await Vault.deploy();
     await vault.deployed();
 
     const FeeDistributor = await ethers.getContractFactory(
-      "NFTXSimpleFeeDistributor"
+      "SimpleFeeDistributor"
     );
     const feeDistrib = await upgrades.deployProxy(
       FeeDistributor,
@@ -57,7 +57,7 @@ describe("Main", function () {
     );
     await feeDistrib.deployed();
 
-    const Nftx = await ethers.getContractFactory("NFTXVaultFactoryUpgradeable");
+    const Nftx = await ethers.getContractFactory("VaultFactoryUpgradeable");
     nftx = await upgrades.deployProxy(
       Nftx,
       [vault.address, feeDistrib.address],
@@ -134,7 +134,7 @@ describe("Main", function () {
       .find((elem) => elem.event === "NewVault")
       .args[0].toString();
     const vaultAddr = await nftx.vault(vaultId);
-    const vaultArtifact = await artifacts.readArtifact("NFTXVaultUpgradeable");
+    const vaultArtifact = await artifacts.readArtifact("VaultUpgradeable");
     const vault = new ethers.Contract(
       vaultAddr,
       vaultArtifact.abi,
@@ -348,7 +348,7 @@ describe("Main", function () {
       .find((elem) => elem.event === "NewVault")
       .args[0].toString();
     const vaultAddr = await nftx.vault(vaultId);
-    const vaultArtifact = await artifacts.readArtifact("NFTXVaultUpgradeable");
+    const vaultArtifact = await artifacts.readArtifact("VaultUpgradeable");
     const vault = new ethers.Contract(
       vaultAddr,
       vaultArtifact.abi,

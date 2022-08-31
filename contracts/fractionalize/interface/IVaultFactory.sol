@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import "../proxy/IBeacon.sol";
 
-interface INFTXVaultFactory is IBeacon {
+interface IVaultFactory is IBeacon {
   // Read functions.
   function numVaults() external view returns (uint256);
   function feeDistributor() external view returns (address);

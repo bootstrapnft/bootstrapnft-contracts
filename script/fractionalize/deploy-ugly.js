@@ -22,7 +22,7 @@ async function main() {
     await provider.deployed();
     console.log("MockStakingProvider:", provider.address);
 
-    const Staking = await ethers.getContractFactory("NFTXLPStaking");
+    const Staking = await ethers.getContractFactory("LPStaking");
     staking = await upgrades.deployProxy(Staking, [provider.address], {
         initializer: "__NFTXLPStaking__init",
         unsafeAllow: 'delegatecall'
@@ -30,12 +30,12 @@ async function main() {
     await staking.deployed();
     console.log("Staking:", staking.address);
 
-    const Vault = await ethers.getContractFactory("NFTXVaultUpgradeable");
+    const Vault = await ethers.getContractFactory("VaultUpgradeable");
     const vault = await Vault.deploy();
     await vault.deployed();
     console.log("Vault template:", vault.address);
 
-    // const FeeDistributor = await ethers.getContractFactory("NFTXSimpleFeeDistributor");
+    // const FeeDistributor = await ethers.getContractFactory("SimpleFeeDistributor");
     // const feeDistrib = await upgrades.deployProxy(
     //   FeeDistributor,
     //   [staking.address, notZeroAddr],
@@ -47,7 +47,7 @@ async function main() {
     // await feeDistrib.deployed();
 
     const FeeDistributor = await ethers.getContractFactory(
-        "NFTXSimpleFeeDistributor"
+        "SimpleFeeDistributor"
     );
     const feeDistrib = await upgrades.deployProxy(
         FeeDistributor,
@@ -60,7 +60,7 @@ async function main() {
     await feeDistrib.deployed();
     console.log("FeeDistributor:", feeDistrib.address);
 
-    const Nftx = await ethers.getContractFactory("NFTXVaultFactoryUpgradeable");
+    const Nftx = await ethers.getContractFactory("VaultFactoryUpgradeable");
     nftx = await upgrades.deployProxy(Nftx, [vault.address, feeDistrib.address], {
         initializer: "__NFTXVaultFactory_init",
         unsafeAllow: 'delegatecall'

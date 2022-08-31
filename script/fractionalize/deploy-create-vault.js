@@ -21,7 +21,7 @@ async function main() {
         (await alice.getBalance()).toString(),
         "\n"
     );
-    const Nftx = await ethers.getContractFactory("NFTXVaultFactoryUpgradeable");
+    const Nftx = await ethers.getContractFactory("VaultFactoryUpgradeable");
     let nftx = await Nftx.attach("0xB757Bd6b4430d8Cd2Ed678A4d86E8e6b2E6ebd1d")
     const vaultId = await nftx.connect(deployer).createVault("CryptoPandas", "PANDA", "0xf33a3efDDA0399D1E57a612D10EA2B122c662102", false, true);
     console.log("create vault Id:", await vaultId.wait());

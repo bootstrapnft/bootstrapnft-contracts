@@ -2,10 +2,10 @@
 
 pragma solidity ^0.8.0;
 
-import "./interface/INFTXLPStaking.sol";
-import "./interface/INFTXSimpleFeeDistributor.sol";
-import "./interface/INFTXInventoryStaking.sol";
-import "./interface/INFTXVaultFactory.sol";
+import "./interface/ILPStaking.sol";
+import "./interface/ISimpleFeeDistributor.sol";
+import "./interface/IInventoryStaking.sol";
+import "./interface/IVaultFactory.sol";
 import "./token/IERC20Upgradeable.sol";
 import "./util/SafeERC20Upgradeable.sol";
 import "./util/SafeMathUpgradeable.sol";
@@ -13,7 +13,7 @@ import "./util/PausableUpgradeable.sol";
 import "./util/ReentrancyGuardUpgradeable.sol";
 import "./util/SafeERC20Upgradeable.sol";
 
-contract NFTXSimpleFeeDistributor is INFTXSimpleFeeDistributor, ReentrancyGuardUpgradeable, PausableUpgradeable {
+contract SimpleFeeDistributor is ISimpleFeeDistributor, ReentrancyGuardUpgradeable, PausableUpgradeable {
   using SafeERC20Upgradeable for IERC20Upgradeable;
 
   bool public distributionPaused;
@@ -49,7 +49,7 @@ contract NFTXSimpleFeeDistributor is INFTXSimpleFeeDistributor, ReentrancyGuardU
 
   function distribute(uint256 vaultId) external override virtual nonReentrant {
     require(nftxVaultFactory != address(0));
-    address _vault = INFTXVaultFactory(nftxVaultFactory).vault(vaultId);
+    address _vault = IVaultFactory(nftxVaultFactory).vault(vaultId);
 
     uint256 tokenBalance = IERC20Upgradeable(_vault).balanceOf(address(this));
 
@@ -87,9 +87,9 @@ contract NFTXSimpleFeeDistributor is INFTXSimpleFeeDistributor, ReentrancyGuardU
 
   function initializeVaultReceivers(uint256 _vaultId) external override {
     require(msg.sender == nftxVaultFactory, "FeeReceiver: not factory");
-    INFTXLPStaking(lpStaking).addPoolForVault(_vaultId);
+    ILPStaking(lpStaking).addPoolForVault(_vaultId);
     if (inventoryStaking != address(0))
-      INFTXInventoryStaking(inventoryStaking).deployXTokenForVault(_vaultId);
+      IInventoryStaking(inventoryStaking).deployXTokenForVault(_vaultId);
   }
 
   function changeReceiverAlloc(uint256 _receiverIdx, uint256 _allocPoint) public override virtual onlyOwner {
@@ -163,7 +163,7 @@ contract NFTXSimpleFeeDistributor is INFTXSimpleFeeDistributor, ReentrancyGuardU
     if (_receiver.isContract) {
       IERC20Upgradeable(_vault).safeIncreaseAllowance(_receiver.receiver, amountToSend);
        
-      bytes memory payload = abi.encodeWithSelector(INFTXLPStaking.receiveRewards.selector, _vaultId, amountToSend);
+      bytes memory payload = abi.encodeWithSelector(ILPStaking.receiveRewards.selector, _vaultId, amountToSend);
       (bool success, ) = address(_receiver.receiver).call(payload);
 
       // If the allowance has not been spent, it means we can pass it forward to next.

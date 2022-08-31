@@ -3,10 +3,10 @@
 pragma solidity ^0.8.0;
 
 import "../proxy/Initializable.sol";
-import "../interface/INFTXEligibility.sol";
+import "../interface/IEligibility.sol";
 
 // This is a contract meant to be inherited and overriden to implement eligibility modules. 
-abstract contract NFTXEligibility is INFTXEligibility, Initializable {
+abstract contract NFTXEligibility is IEligibility, Initializable {
   function name() public pure override virtual returns (string memory);
   function finalized() public view override virtual returns (bool);
   function targetAsset() public pure override virtual returns (address);

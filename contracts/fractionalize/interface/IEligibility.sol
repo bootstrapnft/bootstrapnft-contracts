@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-interface INFTXEligibility {
+interface IEligibility {
     // Read functions.
     function name() external pure returns (string memory);
     function finalized() external view returns (bool);

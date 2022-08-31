@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../interface/INFTXVault.sol";
+import "../interface/IVault.sol";
 import "../testing/IERC721.sol";
 import "../token/IERC1155Upgradeable.sol";
 import "../token/ERC721HolderUpgradeable.sol";
@@ -38,7 +38,7 @@ contract NFTXMintRequestEligibility is
         return address(0);
     }
 
-    INFTXVault public vault;
+    IVault public vault;
     bool public isInitialized;
     bool public is1155;
     bool public negateEligOnRedeem;
@@ -84,10 +84,10 @@ contract NFTXMintRequestEligibility is
         transferOwnership(_owner);
         // Approve for future usage.
         // Same function on both 721 and 1155.
-        vault = INFTXVault(vaultAddress);
+        vault = IVault(vaultAddress);
         negateEligOnRedeem = _negateEligOnRedeem;
-        is1155 = INFTXVault(vaultAddress).is1155();
-        address _assetAddress = INFTXVault(vaultAddress).assetAddress();
+        is1155 = IVault(vaultAddress).is1155();
+        address _assetAddress = IVault(vaultAddress).assetAddress();
         IERC1155Upgradeable(_assetAddress).setApprovalForAll(
             address(vault),
             true
@@ -156,7 +156,7 @@ contract NFTXMintRequestEligibility is
         if (!allowTrustedApprovals || !isGuardian[msg.sender]) {
             onlyPrivileged();
         }
-        INFTXVault _vault = vault;
+        IVault _vault = vault;
         for (uint256 i; i < tokenIds.length; i++) {
             uint256 tokenId = tokenIds[i];
             uint256 amount = mintRequests[addresses[i]][tokenId];
@@ -182,7 +182,7 @@ contract NFTXMintRequestEligibility is
         address[] calldata addresses
     ) external virtual {
         require(tokenIds.length == addresses.length);
-        INFTXVault _vault = vault;
+        IVault _vault = vault;
         for (uint256 i; i < tokenIds.length; i++) {
             uint256 tokenId = tokenIds[i];
             uint256 amount = mintRequests[addresses[i]][tokenId];

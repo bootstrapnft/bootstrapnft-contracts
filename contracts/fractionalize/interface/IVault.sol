@@ -2,14 +2,14 @@
 
 pragma solidity ^0.8.0;
 
-import "../interface/INFTXEligibility.sol";
+import "../interface/IEligibility.sol";
 import "../token/IERC20Upgradeable.sol";
-import "../interface/INFTXVaultFactory.sol";
+import "../interface/IVaultFactory.sol";
 
-interface INFTXVault is IERC20Upgradeable {
+interface IVault is IERC20Upgradeable {
     function manager() external view returns (address);
     function assetAddress() external view returns (address);
-    function vaultFactory() external view returns (INFTXVaultFactory);
+    function vaultFactory() external view returns (IVaultFactory);
     function is1155() external view returns (bool);
     function allowAllItems() external view returns (bool);
     function enableMint() external view returns (bool);

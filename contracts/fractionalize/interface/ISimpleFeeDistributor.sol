@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-interface INFTXSimpleFeeDistributor {
+interface ISimpleFeeDistributor {
   
   struct FeeReceiver {
     uint256 allocPoint;
