@@ -1,5 +1,5 @@
 const { expect } = require("chai");
-const { expectRevert, expectException } = require("../utils/expectRevert");
+const { expectRevert, expectException } = require("../../utils/expectRevert");
 
 const { BigNumber } = require("@ethersproject/bignumber");
 const { ethers, upgrades } = require("hardhat");

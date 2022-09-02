@@ -173,7 +173,7 @@ contract ExchangeProxy is Ownable {
             for (uint k = 0; k < swapSequences[i].length; k++) {
                 Swap memory swap = swapSequences[i][k];
                 TokenInterface SwapTokenIn = TokenInterface(swap.tokenIn);
-                if (k == 1) {
+                if (k >= 1) {
                     // Makes sure that on the second swap the output of the first was used
                     // so there is not intermediate token leftover
                     swap.swapAmount = tokenAmountOut;
