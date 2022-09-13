@@ -1,6 +1,7 @@
 require("dotenv").config();
 require("@nomiclabs/hardhat-waffle");
 require("@openzeppelin/hardhat-upgrades");
+require('hardhat-log-remover');
 
 /**
  * @type import('hardhat/config').HardhatUserConfig

@@ -167,7 +167,6 @@ contract ExchangeProxy is Ownable {
     {
 
         transferFromAll(tokenIn, totalAmountIn);
-
         for (uint i = 0; i < swapSequences.length; i++) {
             uint tokenAmountOut;
             for (uint k = 0; k < swapSequences[i].length; k++) {

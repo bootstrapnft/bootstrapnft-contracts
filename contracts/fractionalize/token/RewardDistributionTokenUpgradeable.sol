@@ -9,8 +9,6 @@ import "../util/SafeERC20Upgradeable.sol";
 import "../util/SafeMathUpgradeable.sol";
 import "../util/SafeMathInt.sol";
 
-import "hardhat/console.sol";
-
 /// @title Reward-Paying Token (renamed from Dividend)
 /// @author Roger Wu (https://github.com/roger-wu)
 /// @dev A mintable ERC20 token that allows anyone to pay and distribute a target token

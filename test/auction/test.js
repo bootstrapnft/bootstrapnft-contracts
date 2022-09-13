@@ -213,7 +213,6 @@ describe("Test Auction", function () {
             // console.log("aliceProxyAddress is :", aliceProxyAddress)
             expect(aliceProxyAddress).to.equal(zeroAddr)
         });
-
         it("createPool", async () => {
             const tokenBal = [
                 ethers.utils.parseEther("100").toString(),
@@ -319,17 +318,24 @@ describe("Test Auction", function () {
             let testMumuTokenAfterBal = await testMumuToken.balanceOf(primary.address)
             let usdcTokenAfterBal = await usdc.balanceOf(primary.address)
 
+
             expect(testMumuTokenBeforeBal.sub(testMumuTokenAfterBal)).to.equal(ethers.utils.parseEther("100").toString())
             expect(usdcTokenBeforeBal.sub(usdcTokenAfterBal)).to.equal(ethers.utils.parseEther("100").toString())
+
+            let crpAfterBalance = await crp.balanceOf(primary.address)
+            expect(crpAfterBalance).to.equal(ethers.utils.parseEther("100").toString())
         })
         it("add liquidity multi assets", async () => {
+
+            let testMumuTokenBeforeBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenBeforeBal = await usdc.balanceOf(primary.address)
 
             const joinSmartPoolData = bactionIfac.encodeFunctionData("joinSmartPool", [
                 crpPoolAddress,
                 ethers.utils.parseEther("100").toString(),
                 [
-                    ethers.utils.parseEther("200").toString(),
-                    ethers.utils.parseEther("200").toString(),
+                    ethers.utils.parseUnits("100000000000000000001", 0).toString(), // need over 1 wei for rounding
+                    ethers.utils.parseUnits("100000000000000000001", 0).toString(),
                 ]
             ]);
 
@@ -338,21 +344,31 @@ describe("Test Auction", function () {
             console.log("joinSmartPoolTx hash", joinSmartPoolTx.hash)
 
             let crp = await ConfigurableRightsPool.attach(crpPoolAddress)
-            expect(await crp.symbol()).to.equal(poolTokenSymbol)
-            expect(await crp.name()).to.equal(poolTokenName)
             expect(await crp.totalSupply()).to.equal(ethers.utils
                 .parseEther("200")
                 .toString())
 
             let bpool = await BPool.attach(bpoolAddress)
-            let numTokens = await bpool.getNumTokens()
-            let currentTokens = await bpool.getCurrentTokens()
+            expect(await bpool.getBalance(testMumuToken.address)).to.equal(ethers.utils.parseUnits("200000000000000000001", 0).toString())
+            expect(await bpool.getBalance(usdc.address)).to.equal(ethers.utils.parseUnits("200000000000000000001", 0).toString())
+            expect(await bpool.getDenormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("22.22").toString())
+            expect(await bpool.getDenormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("22.22").toString())
+            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("0.5").toString())
+            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("0.5").toString())
 
-            expect(numTokens).to.equal(2)
-            expect(currentTokens[0]).to.equal(testMumuToken.address)
-            expect(currentTokens[1]).to.equal(usdc.address)
+            let testMumuTokenAfterBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenAfterBal = await usdc.balanceOf(primary.address)
+
+            expect(testMumuTokenBeforeBal.sub(testMumuTokenAfterBal)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(usdcTokenBeforeBal.sub(usdcTokenAfterBal)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+
+            let crpAfterBalance = await crp.balanceOf(primary.address)
+            expect(crpAfterBalance).to.equal(ethers.utils.parseEther("200").toString())
         })
         it("remove liquidity multi assets", async () => {
+
+            let testMumuTokenBeforeBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenBeforeBal = await usdc.balanceOf(primary.address)
 
             let crp = await ConfigurableRightsPool.attach(crpPoolAddress)
 
@@ -361,22 +377,33 @@ describe("Test Auction", function () {
                 ["0", "0"]
             )
             console.log("exitPoolTx hash", exitPoolTx.hash)
-
-            expect(await crp.symbol()).to.equal(poolTokenSymbol)
-            expect(await crp.name()).to.equal(poolTokenName)
             expect(await crp.totalSupply()).to.equal(ethers.utils
                 .parseEther("100")
                 .toString())
 
             let bpool = await BPool.attach(bpoolAddress)
-            let numTokens = await bpool.getNumTokens()
-            let currentTokens = await bpool.getCurrentTokens()
 
-            expect(numTokens).to.equal(2)
-            expect(currentTokens[0]).to.equal(testMumuToken.address)
-            expect(currentTokens[1]).to.equal(usdc.address)
+            expect(await bpool.getBalance(testMumuToken.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(await bpool.getBalance(usdc.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(await bpool.getDenormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("22.22").toString())
+            expect(await bpool.getDenormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("22.22").toString())
+            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("0.5").toString())
+            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("0.5").toString())
+
+            let testMumuTokenAfterBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenAfterBal = await usdc.balanceOf(primary.address)
+
+            expect(testMumuTokenAfterBal.sub(testMumuTokenBeforeBal)).to.equal(ethers.utils.parseUnits("100000000000000000000", 0).toString())
+            expect(usdcTokenAfterBal.sub(usdcTokenBeforeBal)).to.equal(ethers.utils.parseUnits("100000000000000000000", 0).toString())
+
+            let crpAfterBalance = await crp.balanceOf(primary.address)
+            expect(crpAfterBalance).to.equal(ethers.utils.parseEther("100").toString())
         })
         it("add liquidity single assets", async () => {
+
+            let testMumuTokenBeforeBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenBeforeBal = await usdc.balanceOf(primary.address)
+
 
             const joinswapExternAmountInData = bactionIfac.encodeFunctionData("joinswapExternAmountIn", [
                 crpPoolAddress,
@@ -395,30 +422,60 @@ describe("Test Auction", function () {
 
             let bpool = await BPool.attach(bpoolAddress)
 
-            let testTokenBalance = await bpool.getBalance(testMumuToken.address)
-            let usdcTokenBalance = await bpool.getBalance(usdc.address)
+            expect(await bpool.getBalance(testMumuToken.address)).to.equal(ethers.utils.parseUnits("140000000000000000001", 0).toString())
+            expect(await bpool.getBalance(usdc.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(await bpool.getDenormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("22.22").toString())
+            expect(await bpool.getDenormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("22.22").toString())
+            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("0.5").toString())
+            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("0.5").toString())
 
-            console.log("testTokenBalance", testTokenBalance)
-            console.log("usdcTokenBalance", usdcTokenBalance)
+            let testMumuTokenAfterBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenAfterBal = await usdc.balanceOf(primary.address)
+
+            expect(testMumuTokenBeforeBal.sub(testMumuTokenAfterBal)).to.equal(ethers.utils.parseUnits("40000000000000000000", 0).toString())
+            expect(usdcTokenBeforeBal.sub(usdcTokenAfterBal)).to.equal(0)
+
+            let dsProxytestMumuTokenAfterBal = await testMumuToken.balanceOf(dsProxy.address)
+            expect(dsProxytestMumuTokenAfterBal).to.equal(ethers.utils.parseUnits("0", 0).toString())
+
+            let crpAfterBalance = await crp.balanceOf(primary.address)
+            expect(crpAfterBalance).to.equal(ethers.utils.parseUnits("118321587213027381500", 0).toString())
         })
         it("remove liquidity single assets", async () => {
 
+            let testMumuTokenBeforeBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenBeforeBal = await usdc.balanceOf(primary.address)
+
             let crp = await ConfigurableRightsPool.attach(crpPoolAddress)
+
 
             let exitswapPoolAmountInTx = await crp.connect(primary).exitswapPoolAmountIn(
                 testMumuToken.address,
-                ethers.utils.parseEther("20").toString(),
+                ethers.utils.parseUnits("18321587213027381500", 0),
                 "0"
             )
             console.log("exitswapPoolAmountInTx hash", exitswapPoolAmountInTx.hash)
-            expect(await crp.totalSupply()).to.equal("98321587213027381500")
+            expect(await crp.totalSupply()).to.equal("100000000000000000000")
 
             let bpool = await BPool.attach(bpoolAddress)
-            let testTokenBalance = await bpool.getBalance(testMumuToken.address)
-            let usdcTokenBalance = await bpool.getBalance(usdc.address)
+            expect(await bpool.getBalance(testMumuToken.address)).to.equal(ethers.utils.parseUnits("100000034281351722182", 0).toString())
+            expect(await bpool.getBalance(usdc.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(await bpool.getDenormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("22.22").toString())
+            expect(await bpool.getDenormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("22.22").toString())
+            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("0.5").toString())
+            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("0.5").toString())
 
-            console.log("testTokenBalance", testTokenBalance)
-            console.log("usdcTokenBalance", usdcTokenBalance)
+            let testMumuTokenAfterBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenAfterBal = await usdc.balanceOf(primary.address)
+
+            expect(testMumuTokenAfterBal.sub(testMumuTokenBeforeBal)).to.equal(ethers.utils.parseUnits("39999965718648277819", 0).toString())
+            expect(usdcTokenAfterBal.sub(usdcTokenBeforeBal)).to.equal(ethers.utils.parseUnits("0", 0).toString())
+
+            let dsProxytestMumuTokenAfterBal = await testMumuToken.balanceOf(dsProxy.address)
+            expect(dsProxytestMumuTokenAfterBal).to.equal(ethers.utils.parseUnits("0", 0).toString())
+
+            let crpAfterBalance = await crp.balanceOf(primary.address)
+            expect(crpAfterBalance).to.equal(ethers.utils.parseUnits("100000000000000000000", 0).toString())
         })
         it("set swap enable", async () => {
 
@@ -463,44 +520,53 @@ describe("Test Auction", function () {
             expect(await bpool.getSwapFee()).to.equal(newSwapFee)
         })
         it("direct increaseWeight", async () => {
+            let testMumuTokenBeforeBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenBeforeBal = await usdc.balanceOf(primary.address)
 
             const increaseWeightData = bactionIfac.encodeFunctionData("increaseWeight", [
                 crpPoolAddress,
                 testMumuToken.address,
                 ethers.utils.parseEther("27"),
-                ethers.utils.parseEther("100").toString(),
+                ethers.utils.parseUnits("21512158589777733264",0)
             ]);
 
-
             let increaseWeightTx = await dsProxy.connect(primary).execute(bActions.address, increaseWeightData)
+
+            let crp = await ConfigurableRightsPool.attach(crpPoolAddress)
+            console.log("total supply", await crp.totalSupply())
+            expect(await crp.totalSupply()).to.equal("110756075607560756100")
+
             console.log("increaseWeightTx hash", increaseWeightTx.hash)
             let bpool = await BPool.attach(bpoolAddress)
-            testTokenWeight = await bpool.getNormalizedWeight(testMumuToken.address)
-            usdcTokenWeight = await bpool.getNormalizedWeight(usdc.address)
+            expect(await bpool.getBalance(testMumuToken.address)).to.equal(ethers.utils.parseUnits("121512192871129455445", 0).toString())
+            expect(await bpool.getBalance(usdc.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(await bpool.getDenormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("27").toString())
+            expect(await bpool.getDenormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("22.22").toString())
+            expect(await bpool.getNormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseUnits("548557496952458350", 0).toString())
+            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseUnits("451442503047541650", 0).toString())
 
-            console.log("testTokenWeight", testTokenWeight)
-            console.log("usdcTokenWeight", usdcTokenWeight)
-            testTokenDWeight = await bpool.getDenormalizedWeight(testMumuToken.address)
-            usdcTokenDWeight = await bpool.getDenormalizedWeight(usdc.address)
+            let testMumuTokenAfterBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenAfterBal = await usdc.balanceOf(primary.address)
 
-            console.log("testTokenDWeight", testTokenDWeight)
-            console.log("usdcTokenDWeight", usdcTokenDWeight)
+            expect(testMumuTokenBeforeBal.sub(testMumuTokenAfterBal)).to.equal(ethers.utils.parseUnits("21512158589777733264", 0).toString())
+            expect(usdcTokenAfterBal.sub(usdcTokenBeforeBal)).to.equal(ethers.utils.parseUnits("0", 0).toString())
+
+
+            let dsProxytestMumuTokenAfterBal = await testMumuToken.balanceOf(dsProxy.address)
+            expect(dsProxytestMumuTokenAfterBal).to.equal(ethers.utils.parseUnits("1", 0).toString())
+
+            let crpAfterBalance = await crp.balanceOf(primary.address)
+            expect(crpAfterBalance).to.equal(ethers.utils.parseUnits("110756075607560756100", 0).toString())
+
+            let dsproxyAfterBalance = await crp.balanceOf(dsProxy.address)
+            expect(dsproxyAfterBalance).to.equal(ethers.utils.parseUnits("0", 0).toString())
         })
         it("direct decreaseWeight", async () => {
 
+            let testMumuTokenBeforeBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenBeforeBal = await usdc.balanceOf(primary.address)
+
             let bpool = await BPool.attach(bpoolAddress)
-
-            let testTokenWeight = await bpool.getNormalizedWeight(testMumuToken.address)
-            let usdcTokenWeight = await bpool.getNormalizedWeight(usdc.address)
-            console.log("testTokenWeight", testTokenWeight)
-            console.log("usdcTokenWeight", usdcTokenWeight)
-
-            let testTokenDWeight = await bpool.getDenormalizedWeight(testMumuToken.address)
-            let usdcTokenDWeight = await bpool.getDenormalizedWeight(usdc.address)
-
-            console.log("testTokenDWeight", testTokenDWeight)
-            console.log("usdcTokenDWeight", usdcTokenDWeight)
-
 
             let crp = await ConfigurableRightsPool.attach(crpPoolAddress)
             await crp.connect(primary).approve(dsProxy.address, ethers.utils.parseEther("1000").toString())
@@ -509,59 +575,59 @@ describe("Test Auction", function () {
             const decreaseWeightData = bactionIfac.encodeFunctionData("decreaseWeight", [
                 crpPoolAddress,
                 testMumuToken.address,
-                ethers.utils.parseEther("20"),
-                ethers.utils.parseEther("100").toString(),
+                ethers.utils.parseEther("22.22"),
+                ethers.utils.parseUnits("10756075607560756130", 0)
+                // ethers.utils.parseEther("20")
             ]);
 
             let decreaseWeightTx = await dsProxy.connect(primary).execute(bActions.address, decreaseWeightData)
             console.log("decreaseWeightTx hash", decreaseWeightTx.hash)
 
-            testTokenWeight = await bpool.getNormalizedWeight(testMumuToken.address)
-            usdcTokenWeight = await bpool.getNormalizedWeight(usdc.address)
+            console.log("total supply", await crp.totalSupply())
+            expect(await crp.totalSupply()).to.equal("99999999999999999970")
 
-            console.log("testTokenWeight", testTokenWeight)
-            console.log("usdcTokenWeight", usdcTokenWeight)
-            testTokenDWeight = await bpool.getDenormalizedWeight(testMumuToken.address)
-            usdcTokenDWeight = await bpool.getDenormalizedWeight(usdc.address)
+            expect(await bpool.getBalance(testMumuToken.address)).to.equal(ethers.utils.parseUnits("100000034281351722226", 0).toString())
+            expect(await bpool.getBalance(usdc.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(await bpool.getDenormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("22.22").toString())
+            expect(await bpool.getDenormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("22.22").toString())
+            expect(await bpool.getNormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseUnits("500000000000000000", 0).toString())
+            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseUnits("500000000000000000", 0).toString())
 
-            console.log("testTokenDWeight", testTokenDWeight)
-            console.log("usdcTokenDWeight", usdcTokenDWeight)
+            let testMumuTokenAfterBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenAfterBal = await usdc.balanceOf(primary.address)
+
+            expect(testMumuTokenAfterBal.sub(testMumuTokenBeforeBal)).to.equal(ethers.utils.parseUnits("21512158589777733220", 0).toString())
+            expect(usdcTokenAfterBal.sub(usdcTokenBeforeBal)).to.equal(ethers.utils.parseUnits("0", 0).toString())
+
+            let crpAfterBalance = await crp.balanceOf(primary.address)
+            expect(crpAfterBalance).to.equal(ethers.utils.parseUnits("99999999999999999970", 0).toString())
+            let dsproxyAfterBalance = await crp.balanceOf(dsProxy.address)
+            expect(dsproxyAfterBalance).to.equal(ethers.utils.parseUnits("0", 0).toString())
         })
         it("gradually  updateWeight", async () => {
+
+            let testMumuTokenBeforeBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenBeforeBal = await usdc.balanceOf(primary.address)
 
             let currentBlockNumber = await ethers.provider.getBlockNumber()
             let startBlockNumber = currentBlockNumber + 10
             let endBlockNumber = startBlockNumber + 20
 
+            let crp = await ConfigurableRightsPool.attach(crpPoolAddress)
             let bpool = await BPool.attach(bpoolAddress)
-            testTokenWeight = await bpool.getNormalizedWeight(testMumuToken.address)
-            usdcTokenWeight = await bpool.getNormalizedWeight(usdc.address)
-
-            console.log("testTokenWeight", testTokenWeight)
-            console.log("usdcTokenWeight", usdcTokenWeight)
-            testTokenDWeight = await bpool.getDenormalizedWeight(testMumuToken.address)
-            usdcTokenDWeight = await bpool.getDenormalizedWeight(usdc.address)
-
-            console.log("testTokenDWeight", testTokenDWeight)
-            console.log("usdcTokenDWeight", usdcTokenDWeight)
-
             const newWeights = [
                 ethers.utils.parseEther("15.22").toString(),
                 ethers.utils.parseEther("30.22").toString()
             ];
-
-
             const increaseWeightData = bactionIfac.encodeFunctionData("updateWeightsGradually", [
                 crpPoolAddress,
                 newWeights,
                 startBlockNumber,
                 endBlockNumber,
             ]);
-
             let increaseWeightTx = await dsProxy.connect(primary).execute(bActions.address, increaseWeightData)
             console.log("increaseWeightTx hash", increaseWeightTx.hash)
             await advanceBlockTo(startBlockNumber + 1)
-            let crp = await ConfigurableRightsPool.attach(crpPoolAddress)
 
             for (let i = startBlockNumber + 1; i < endBlockNumber; i++) {
                 console.log("current block:", await ethers.provider.getBlockNumber())
@@ -580,19 +646,75 @@ describe("Test Auction", function () {
             await advanceBlockTo(endBlockNumber + 1)
 
             await crp.connect(primary).pokeWeights()
-            testTokenWeight = await bpool.getNormalizedWeight(testMumuToken.address)
-            usdcTokenWeight = await bpool.getNormalizedWeight(usdc.address)
+            console.log("total supply", await crp.totalSupply())
+            expect(await crp.totalSupply()).to.equal("99999999999999999970")
 
-            console.log("testTokenWeight", testTokenWeight)
-            console.log("usdcTokenWeight", usdcTokenWeight)
-            testTokenDWeight = await bpool.getDenormalizedWeight(testMumuToken.address)
-            usdcTokenDWeight = await bpool.getDenormalizedWeight(usdc.address)
+            expect(await bpool.getBalance(testMumuToken.address)).to.equal(ethers.utils.parseUnits("100000034281351722226", 0).toString())
+            expect(await bpool.getBalance(usdc.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(await bpool.getDenormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("15.22").toString())
+            expect(await bpool.getDenormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("30.22").toString())
+            expect(await bpool.getNormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseUnits("334947183098591549", 0).toString())
+            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseUnits("665052816901408451", 0).toString())
 
-            console.log("testTokenDWeight", testTokenDWeight)
-            console.log("usdcTokenDWeight", usdcTokenDWeight)
+            let testMumuTokenAfterBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenAfterBal = await usdc.balanceOf(primary.address)
+
+            expect(testMumuTokenAfterBal.sub(testMumuTokenBeforeBal)).to.equal(ethers.utils.parseUnits("0", 0).toString())
+            expect(usdcTokenAfterBal.sub(usdcTokenBeforeBal)).to.equal(ethers.utils.parseUnits("0", 0).toString())
+
+            let crpAfterBalance = await crp.balanceOf(primary.address)
+            expect(crpAfterBalance).to.equal(ethers.utils.parseUnits("99999999999999999970", 0).toString())
+
+
+
+            const newWeights2 = [
+                ethers.utils.parseEther("10.22").toString(),
+                ethers.utils.parseEther("10.22").toString()
+            ];
+             currentBlockNumber = await ethers.provider.getBlockNumber()
+             startBlockNumber = currentBlockNumber + 10
+             endBlockNumber = startBlockNumber + 20
+
+            const increaseWeightData2 = bactionIfac.encodeFunctionData("updateWeightsGradually", [
+                crpPoolAddress,
+                newWeights2,
+                startBlockNumber,
+                endBlockNumber,
+            ]);
+            let increaseWeightTx2 = await dsProxy.connect(primary).execute(bActions.address, increaseWeightData2)
+
+
+            await advanceBlockTo(endBlockNumber + 1)
+
+            await crp.connect(primary).pokeWeights()
+            console.log("total supply", await crp.totalSupply())
+            expect(await crp.totalSupply()).to.equal("99999999999999999970")
+
+            expect(await bpool.getBalance(testMumuToken.address)).to.equal(ethers.utils.parseUnits("100000034281351722226", 0).toString())
+            expect(await bpool.getBalance(usdc.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(await bpool.getDenormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("10.22").toString())
+            expect(await bpool.getDenormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("10.22").toString())
+            expect(await bpool.getNormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseUnits("500000000000000000", 0).toString())
+            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseUnits("500000000000000000", 0).toString())
+
+             testMumuTokenAfterBal = await testMumuToken.balanceOf(primary.address)
+             usdcTokenAfterBal = await usdc.balanceOf(primary.address)
+
+            expect(testMumuTokenAfterBal.sub(testMumuTokenBeforeBal)).to.equal(ethers.utils.parseUnits("0", 0).toString())
+            expect(usdcTokenAfterBal.sub(usdcTokenBeforeBal)).to.equal(ethers.utils.parseUnits("0", 0).toString())
+
+             crpAfterBalance = await crp.balanceOf(primary.address)
+            expect(crpAfterBalance).to.equal(ethers.utils.parseUnits("99999999999999999970", 0).toString())
+
 
         })
         it("swap in", async () => {
+
+            let testMumuTokenBeforeBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenBeforeBal = await usdc.balanceOf(primary.address)
+
+
+            let crp = await ConfigurableRightsPool.attach(crpPoolAddress)
 
             let bpool = await BPool.attach(bpoolAddress)
             await testMumuToken.connect(primary).approve(exchangeProxy.address, ethers.utils.parseEther("1000").toString())
@@ -624,12 +746,22 @@ describe("Test Auction", function () {
             console.log("swapInTx hash", swapInTx.hash)
 
 
-            testTokenBalance = await bpool.getBalance(testMumuToken.address)
-            usdcTokenBalance = await bpool.getBalance(usdc.address)
+            console.log("total supply", await crp.totalSupply())
+            expect(await crp.totalSupply()).to.equal("99999999999999999970")
 
-            console.log("testTokenBalance", testTokenBalance)
-            console.log("usdcTokenBalance", usdcTokenBalance)
+            expect(await bpool.getBalance(testMumuToken.address)).to.equal(ethers.utils.parseUnits("90925654011049029082", 0).toString())
+            expect(await bpool.getBalance(usdc.address)).to.equal(ethers.utils.parseUnits("110000000000000000001", 0).toString())
+            expect(await bpool.getDenormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("10.22").toString())
+            expect(await bpool.getDenormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("10.22").toString())
+            expect(await bpool.getNormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseUnits("500000000000000000", 0).toString())
+            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseUnits("500000000000000000", 0).toString())
 
+            let testMumuTokenAfterBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenAfterBal = await usdc.balanceOf(primary.address)
+            expect(testMumuTokenAfterBal.sub(testMumuTokenBeforeBal)).to.equal(ethers.utils.parseUnits("9074380270302693144", 0).toString())
+            expect(usdcTokenBeforeBal.sub(usdcTokenAfterBal)).to.equal(ethers.utils.parseUnits("10000000000000000000", 0).toString())
+            let crpAfterBalance = await crp.balanceOf(primary.address)
+            expect(crpAfterBalance).to.equal(ethers.utils.parseUnits("99999999999999999970", 0).toString())
         })
 
     })
@@ -1122,7 +1254,7 @@ describe("Test Auction", function () {
 
         })
     })
-    describe.only("sor swap", function () {
+    describe("sor swap", function () {
 
         let primaryProxyAddress;
         let poolAddress = ""
@@ -1130,7 +1262,7 @@ describe("Test Auction", function () {
         let ifac
 
         const initialSupply = ethers.utils
-            .parseEther("100")
+            .parseEther("10000")
             .toString();
 
         const swapFee = ethers.utils
@@ -1161,8 +1293,8 @@ describe("Test Auction", function () {
         it("createPool", async () => {
 
             const tokenBal = [
-                ethers.utils.parseEther("100").toString(),
-                ethers.utils.parseEther("100").toString(),
+                ethers.utils.parseEther("10000").toString(),
+                ethers.utils.parseEther("10000").toString(),
             ];
             const weights = [
                 ethers.utils.parseEther("11.11").toString(),
@@ -1248,10 +1380,10 @@ describe("Test Auction", function () {
             dsProxy = await DsProxy.attach(primaryProxyAddress)
             console.log("dsProxy is :", dsProxy.address)
 
-            await testMumuToken.connect(primary).approve(dsProxy.address, ethers.utils.parseEther("1000").toString())
-            await testLalalaToken.connect(primary).approve(dsProxy.address, ethers.utils.parseEther("1000").toString())
-            await usdc.connect(primary).approve(dsProxy.address, ethers.utils.parseEther("1000").toString())
-            await bal.connect(primary).approve(dsProxy.address, ethers.utils.parseEther("1000").toString())
+            await testMumuToken.connect(primary).approve(dsProxy.address, ethers.utils.parseEther("100000").toString())
+            await testLalalaToken.connect(primary).approve(dsProxy.address, ethers.utils.parseEther("100000").toString())
+            await usdc.connect(primary).approve(dsProxy.address, ethers.utils.parseEther("100000").toString())
+            await bal.connect(primary).approve(dsProxy.address, ethers.utils.parseEther("100000").toString())
 
 
             for (let i = 0; i < 3; i++) {
@@ -1273,86 +1405,86 @@ describe("Test Auction", function () {
 
 
         })
-        it("swap in from one pool", async () => {
-
-            await testMumuToken.connect(primary).approve(exchangeProxy.address, ethers.utils.parseEther("1000").toString())
-            await testLalalaToken.connect(primary).approve(exchangeProxy.address, ethers.utils.parseEther("1000").toString())
-            await usdc.connect(primary).approve(exchangeProxy.address, ethers.utils.parseEther("1000").toString())
-            await bal.connect(primary).approve(exchangeProxy.address, ethers.utils.parseEther("1000").toString())
-
-
-            let beforeLalaBalance = await testLalalaToken.connect(primary).balanceOf(primary.address)
-            console.log("beforeLalaBalance", beforeLalaBalance)
-
-            let swaps = [
-                {
-                    pool: bPools[0],
-                    tokenIn: testMumuToken.address,
-                    tokenOut: testLalalaToken.address,
-                    swapAmount: ethers.utils.parseEther("10").toString(),
-                    limitReturnAmount: 0,
-                    maxPrice: ethers.utils.parseEther("100").toString(),
-                },
-            ]
-
-            let swapInTx = await exchangeProxy.connect(primary).multihopBatchSwapExactIn(
-                [swaps],
-                testMumuToken.address,
-                testLalalaToken.address,
-                ethers.utils.parseEther("10").toString(),
-                '0')
-
-            console.log("swapInTx hash", swapInTx.hash)
-
-            let afterLalaBalance = await testLalalaToken.connect(primary).balanceOf(primary.address)
-            console.log("afterLalaBalance", afterLalaBalance)
-            console.log("diffLalaBalance", afterLalaBalance.sub(beforeLalaBalance))
-
-        })
-        it("swap in from two pools", async () => {
-
-            await testMumuToken.connect(primary).approve(exchangeProxy.address, ethers.utils.parseEther("1000").toString())
-            await testLalalaToken.connect(primary).approve(exchangeProxy.address, ethers.utils.parseEther("1000").toString())
-            await usdc.connect(primary).approve(exchangeProxy.address, ethers.utils.parseEther("1000").toString())
-            await bal.connect(primary).approve(exchangeProxy.address, ethers.utils.parseEther("1000").toString())
-
-
-            let beforeUsdcBalance = await usdc.connect(primary).balanceOf(primary.address)
-            console.log("beforeUsdcBalance", beforeUsdcBalance)
-
-            let swaps = [
-                {
-                    pool: bPools[0],
-                    tokenIn: testMumuToken.address,
-                    tokenOut: testLalalaToken.address,
-                    swapAmount: ethers.utils.parseEther("10").toString(),
-                    limitReturnAmount: 0,
-                    maxPrice: ethers.utils.parseEther("100").toString(),
-                },
-                {
-                    pool: bPools[1],
-                    tokenIn: testLalalaToken.address,
-                    tokenOut: usdc.address,
-                    swapAmount: ethers.utils.parseEther("10").toString(),
-                    limitReturnAmount: 0,
-                    maxPrice: ethers.utils.parseEther("100").toString(),
-                }
-            ]
-
-            let swapInTx = await exchangeProxy.connect(primary).multihopBatchSwapExactIn(
-                [swaps],
-                testMumuToken.address,
-                usdc.address,
-                ethers.utils.parseEther("10").toString(),
-                '0')
-
-            console.log("swapInTx hash", swapInTx.hash)
-
-            let afterUsdcBalance = await usdc.connect(primary).balanceOf(primary.address)
-            console.log("afterUsdcBalance", afterUsdcBalance)
-            console.log("diffUsdcBalance", afterUsdcBalance.sub(beforeUsdcBalance))
-
-        })
+        // it("swap in from one pool", async () => {
+        //
+        //     await testMumuToken.connect(primary).approve(exchangeProxy.address, ethers.utils.parseEther("1000").toString())
+        //     await testLalalaToken.connect(primary).approve(exchangeProxy.address, ethers.utils.parseEther("1000").toString())
+        //     await usdc.connect(primary).approve(exchangeProxy.address, ethers.utils.parseEther("1000").toString())
+        //     await bal.connect(primary).approve(exchangeProxy.address, ethers.utils.parseEther("1000").toString())
+        //
+        //
+        //     let beforeLalaBalance = await testLalalaToken.connect(primary).balanceOf(primary.address)
+        //     console.log("beforeLalaBalance", beforeLalaBalance)
+        //
+        //     let swaps = [
+        //         {
+        //             pool: bPools[0],
+        //             tokenIn: testMumuToken.address,
+        //             tokenOut: testLalalaToken.address,
+        //             swapAmount: ethers.utils.parseEther("10").toString(),
+        //             limitReturnAmount: 0,
+        //             maxPrice: ethers.utils.parseEther("100").toString(),
+        //         },
+        //     ]
+        //
+        //     let swapInTx = await exchangeProxy.connect(primary).multihopBatchSwapExactIn(
+        //         [swaps],
+        //         testMumuToken.address,
+        //         testLalalaToken.address,
+        //         ethers.utils.parseEther("10").toString(),
+        //         '0')
+        //
+        //     console.log("swapInTx hash", swapInTx.hash)
+        //
+        //     let afterLalaBalance = await testLalalaToken.connect(primary).balanceOf(primary.address)
+        //     console.log("afterLalaBalance", afterLalaBalance)
+        //     console.log("diffLalaBalance", afterLalaBalance.sub(beforeLalaBalance))
+        //
+        // })
+        // it("swap in from two pools", async () => {
+        //
+        //     await testMumuToken.connect(primary).approve(exchangeProxy.address, ethers.utils.parseEther("1000").toString())
+        //     await testLalalaToken.connect(primary).approve(exchangeProxy.address, ethers.utils.parseEther("1000").toString())
+        //     await usdc.connect(primary).approve(exchangeProxy.address, ethers.utils.parseEther("1000").toString())
+        //     await bal.connect(primary).approve(exchangeProxy.address, ethers.utils.parseEther("1000").toString())
+        //
+        //
+        //     let beforeUsdcBalance = await usdc.connect(primary).balanceOf(primary.address)
+        //     console.log("beforeUsdcBalance", beforeUsdcBalance)
+        //
+        //     let swaps = [
+        //         {
+        //             pool: bPools[0],
+        //             tokenIn: testMumuToken.address,
+        //             tokenOut: testLalalaToken.address,
+        //             swapAmount: ethers.utils.parseEther("10").toString(),
+        //             limitReturnAmount: 0,
+        //             maxPrice: ethers.utils.parseEther("100").toString(),
+        //         },
+        //         {
+        //             pool: bPools[1],
+        //             tokenIn: testLalalaToken.address,
+        //             tokenOut: usdc.address,
+        //             swapAmount: ethers.utils.parseEther("10").toString(),
+        //             limitReturnAmount: 0,
+        //             maxPrice: ethers.utils.parseEther("100").toString(),
+        //         }
+        //     ]
+        //
+        //     let swapInTx = await exchangeProxy.connect(primary).multihopBatchSwapExactIn(
+        //         [swaps],
+        //         testMumuToken.address,
+        //         usdc.address,
+        //         ethers.utils.parseEther("10").toString(),
+        //         '0')
+        //
+        //     console.log("swapInTx hash", swapInTx.hash)
+        //
+        //     let afterUsdcBalance = await usdc.connect(primary).balanceOf(primary.address)
+        //     console.log("afterUsdcBalance", afterUsdcBalance)
+        //     console.log("diffUsdcBalance", afterUsdcBalance.sub(beforeUsdcBalance))
+        //
+        // })
         it("swap in from three pools", async () => {
 
             await testMumuToken.connect(primary).approve(exchangeProxy.address, ethers.utils.parseEther("1000").toString())
@@ -1369,7 +1501,7 @@ describe("Test Auction", function () {
                     pool: bPools[0],
                     tokenIn: testMumuToken.address,
                     tokenOut: testLalalaToken.address,
-                    swapAmount: ethers.utils.parseEther("20").toString(),
+                    swapAmount: ethers.utils.parseEther("10").toString(),
                     limitReturnAmount: 0,
                     maxPrice: ethers.utils.parseEther("100").toString(),
                 },
@@ -1395,7 +1527,7 @@ describe("Test Auction", function () {
                 [swaps],
                 testMumuToken.address,
                 bal.address,
-                ethers.utils.parseEther("20").toString(),
+                ethers.utils.parseEther("10").toString(),
                 '0')
 
             console.log("swapInTx hash", swapInTx.hash)
