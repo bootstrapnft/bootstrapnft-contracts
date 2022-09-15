@@ -18,9 +18,13 @@ library RightsManager {
 
 abstract contract ERC20Test {
     function approve(address spender, uint amount) external virtual returns (bool);
+
     function transfer(address dst, uint amt) external virtual returns (bool);
+
     function transferFrom(address sender, address recipient, uint amount) external virtual returns (bool);
+
     function balanceOf(address whom) external view virtual returns (uint);
+
     function allowance(address, address) external view virtual returns (uint);
 }
 
@@ -30,23 +34,33 @@ abstract contract BalancerOwnableTest {
 
 abstract contract AbstractPool is ERC20Test, BalancerOwnableTest {
     function setSwapFee(uint swapFee) external virtual;
+
     function setPublicSwap(bool public_) external virtual;
 
     function joinPool(uint poolAmountOut, uint[] calldata maxAmountsIn) external virtual;
+
     function joinswapExternAmountIn(
         address tokenIn, uint tokenAmountIn, uint minPoolAmountOut
     ) external virtual returns (uint poolAmountOut);
+
     function exitPool(uint poolAmountIn, uint[] calldata minAmountsOut) external virtual;
 }
 
 abstract contract BPoolTest is AbstractPool {
     function finalize() external virtual;
+
     function bind(address token, uint balance, uint denorm) external virtual;
+
     function rebind(address token, uint balance, uint denorm) external virtual;
+
     function unbind(address token) external virtual;
+
     function isBound(address t) external view virtual returns (bool);
+
     function getCurrentTokens() external view virtual returns (address[] memory);
-    function getFinalTokens() external view virtual returns(address[] memory);
+
+    function getFinalTokens() external view virtual returns (address[] memory);
+
     function getBalance(address token) external view virtual returns (uint);
 }
 
@@ -57,7 +71,7 @@ abstract contract BFactoryTest {
 abstract contract BalancerPool is ERC20Test {
     function getPoolId() external view virtual returns (bytes32);
 
-    enum JoinKind { INIT, EXACT_TOKENS_IN_FOR_BPT_OUT }
+    enum JoinKind {INIT, EXACT_TOKENS_IN_FOR_BPT_OUT}
 }
 
 abstract contract Vault {
@@ -74,6 +88,7 @@ abstract contract Vault {
         address recipient,
         JoinPoolRequest calldata request
     ) external virtual;
+
     function getPoolTokens(bytes32 poolId) external view virtual returns (address[] memory, uint[] memory, uint256);
 }
 
@@ -96,17 +111,27 @@ abstract contract ConfigurableRightsPoolTest is AbstractPool {
     function createPool(
         uint initialSupply, uint minimumWeightChangeBlockPeriod, uint addTokenTimeLockInBlocks
     ) external virtual;
+
     function createPool(uint initialSupply) external virtual;
+
     function setCap(uint newCap) external virtual;
+
     function updateWeight(address token, uint newWeight) external virtual;
+
     function updateWeightsGradually(
         uint[] calldata newWeights, uint startBlock, uint endBlock
     ) external virtual;
+
     function commitAddToken(address token, uint balance, uint denormalizedWeight) external virtual;
+
     function applyAddToken() external virtual;
+
     function removeToken(address token) external virtual;
+
     function whitelistLiquidityProvider(address provider) external virtual;
+
     function removeWhitelistedLiquidityProvider(address provider) external virtual;
+
     function bPool() external view virtual returns (BPoolTest);
 }
 
@@ -266,7 +291,7 @@ contract BActions {
                     );
                     _safeApprove(token, address(pool), balances[i] - pool.getBalance(tokens[i]));
                 }
-                if (balances[i] > 10**6) {
+                if (balances[i] > 10 ** 6) {
                     pool.rebind(tokens[i], balances[i], denorms[i]);
                 } else {
                     pool.unbind(tokens[i]);
@@ -301,6 +326,9 @@ contract BActions {
         require(token.transferFrom(msg.sender, address(this), tokenAmountIn), "ERR_TRANSFER_FAILED");
         _safeApprove(token, address(crp), tokenAmountIn);
         crp.updateWeight(address(token), newWeight);
+        if (token.balanceOf(address(this)) > 0) {
+            require(token.transfer(msg.sender, token.balanceOf(address(this))), "ERR_TRANSFER_FAILED");
+        }
         require(crp.transfer(msg.sender, crp.balanceOf(address(this))), "ERR_TRANSFER_FAILED");
     }
 
@@ -312,6 +340,9 @@ contract BActions {
     ) external {
         require(crp.transferFrom(msg.sender, address(this), poolAmountIn), "ERR_TRANSFER_FAILED");
         crp.updateWeight(address(token), newWeight);
+        if (crp.balanceOf(address(this)) > 0) {
+            require(crp.transfer(msg.sender, crp.balanceOf(address(this))), "ERR_TRANSFER_FAILED");
+        }
         require(token.transfer(msg.sender, token.balanceOf(address(this))), "ERR_TRANSFER_FAILED");
     }
 
@@ -381,7 +412,7 @@ contract BActions {
         Vault vault,
         BPoolTest poolIn,
         uint poolInAmount,
-        uint[] calldata  tokenOutAmountsMin,
+        uint[] calldata tokenOutAmountsMin,
         BalancerPool poolOut,
         uint poolOutAmountMin
     ) external {
@@ -395,7 +426,7 @@ contract BActions {
         // Transfer v1 BPTs to proxy
         poolIn.transferFrom(msg.sender, address(this), poolInAmount);
         // Exit v1 pool
-        poolIn.exitPool(poolInAmount,  tokenOutAmountsMin);
+        poolIn.exitPool(poolInAmount, tokenOutAmountsMin);
         // Approve each token to v2 vault
         for (uint i = 0; i < tokens.length; i++) {
             _safeApprove(ERC20Test(tokens[i]), address(vault), type(uint).max);
