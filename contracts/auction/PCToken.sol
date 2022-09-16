@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 // Imports
 
-import "./libraries/BalancerSafeMath.sol";
+import "./libraries/BootstrapNftSafeMath.sol";
 import "./interfaces/IERC20.sol";
 
 // Contracts
@@ -11,14 +11,14 @@ import "./interfaces/IERC20.sol";
 /* solhint-disable func-order */
 
 /**
- * @author Balancer Labs
+ * @author BootstrapNft Labs
  * @title Highly opinionated token implementation
 */
 contract PCToken is IERC20 {
-    using BalancerSafeMath for uint;
+    using BootstrapNftSafeMath for uint;
 
     // State variables
-    string public constant NAME = "Balancer Smart Pool";
+    string public constant NAME = "BootstrapNft Smart Pool";
     uint8 public constant DECIMALS = 18;
 
     // No leading underscore per naming convention (non-private)
@@ -104,7 +104,7 @@ contract PCToken is IERC20 {
      * @return bool - result of the approval (will always be true if it doesn't revert)
      */
     function increaseApproval(address spender, uint amount) external returns (bool) {
-        _allowance[msg.sender][spender] = BalancerSafeMath.badd(_allowance[msg.sender][spender], amount);
+        _allowance[msg.sender][spender] = BootstrapNftSafeMath.badd(_allowance[msg.sender][spender], amount);
 
         emit Approval(msg.sender, spender, _allowance[msg.sender][spender]);
 
@@ -125,7 +125,7 @@ contract PCToken is IERC20 {
         if (amount >= oldValue) {
             _allowance[msg.sender][spender] = 0;
         } else {
-            _allowance[msg.sender][spender] = BalancerSafeMath.bsub(oldValue, amount);
+            _allowance[msg.sender][spender] = BootstrapNftSafeMath.bsub(oldValue, amount);
         }
 
         emit Approval(msg.sender, spender, _allowance[msg.sender][spender]);
@@ -167,7 +167,7 @@ contract PCToken is IERC20 {
 
         // If the sender is not the caller, adjust the allowance by the amount transferred
         if (msg.sender != sender && oldAllowance != type(uint).max) {
-            _allowance[sender][msg.sender] = BalancerSafeMath.bsub(oldAllowance, amount);
+            _allowance[sender][msg.sender] = BootstrapNftSafeMath.bsub(oldAllowance, amount);
 
             emit Approval(msg.sender, recipient, _allowance[sender][msg.sender]);
         }
@@ -229,8 +229,8 @@ contract PCToken is IERC20 {
     // Mint an amount of new tokens, and add them to the balance (and total supply)
     // Emit a transfer amount from the null address to this contract
     function _mint(uint amount) internal virtual {
-        _balance[address(this)] = BalancerSafeMath.badd(_balance[address(this)], amount);
-        varTotalSupply = BalancerSafeMath.badd(varTotalSupply, amount);
+        _balance[address(this)] = BootstrapNftSafeMath.badd(_balance[address(this)], amount);
+        varTotalSupply = BootstrapNftSafeMath.badd(varTotalSupply, amount);
 
         emit Transfer(address(0), address(this), amount);
     }
@@ -242,8 +242,8 @@ contract PCToken is IERC20 {
         // Remove require for gas optimization - bsub will revert on underflow
         // require(_balance[address(this)] >= amount, "ERR_INSUFFICIENT_BAL");
 
-        _balance[address(this)] = BalancerSafeMath.bsub(_balance[address(this)], amount);
-        varTotalSupply = BalancerSafeMath.bsub(varTotalSupply, amount);
+        _balance[address(this)] = BootstrapNftSafeMath.bsub(_balance[address(this)], amount);
+        varTotalSupply = BootstrapNftSafeMath.bsub(varTotalSupply, amount);
 
         emit Transfer(address(this), address(0), amount);
     }
@@ -255,8 +255,8 @@ contract PCToken is IERC20 {
         // Remove require for gas optimization - bsub will revert on underflow
         // require(_balance[sender] >= amount, "ERR_INSUFFICIENT_BAL");
 
-        _balance[sender] = BalancerSafeMath.bsub(_balance[sender], amount);
-        _balance[recipient] = BalancerSafeMath.badd(_balance[recipient], amount);
+        _balance[sender] = BootstrapNftSafeMath.bsub(_balance[sender], amount);
+        _balance[recipient] = BootstrapNftSafeMath.badd(_balance[recipient], amount);
 
         emit Transfer(sender, recipient, amount);
     }

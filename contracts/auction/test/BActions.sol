@@ -28,11 +28,11 @@ abstract contract ERC20Test {
     function allowance(address, address) external view virtual returns (uint);
 }
 
-abstract contract BalancerOwnableTest {
+abstract contract BootstrapNftOwnableTest {
     function setController(address controller) external virtual;
 }
 
-abstract contract AbstractPool is ERC20Test, BalancerOwnableTest {
+abstract contract AbstractPool is ERC20Test, BootstrapNftOwnableTest {
     function setSwapFee(uint swapFee) external virtual;
 
     function setPublicSwap(bool public_) external virtual;
@@ -68,7 +68,7 @@ abstract contract BFactoryTest {
     function newBPool() external virtual returns (BPoolTest);
 }
 
-abstract contract BalancerPool is ERC20Test {
+abstract contract BootstrapNftPool is ERC20Test {
     function getPoolId() external view virtual returns (bytes32);
 
     enum JoinKind {INIT, EXACT_TOKENS_IN_FOR_BPT_OUT}
@@ -413,7 +413,7 @@ contract BActions {
         BPoolTest poolIn,
         uint poolInAmount,
         uint[] calldata tokenOutAmountsMin,
-        BalancerPool poolOut,
+        BootstrapNftPool poolOut,
         uint poolOutAmountMin
     ) external {
         address[] memory tokens = poolIn.getFinalTokens();
@@ -453,7 +453,7 @@ contract BActions {
         }
         // Join v2 pool and transfer v2 BPTs to user
         bytes memory userData = abi.encode(
-            BalancerPool.JoinKind.EXACT_TOKENS_IN_FOR_BPT_OUT,
+            BootstrapNftPool.JoinKind.EXACT_TOKENS_IN_FOR_BPT_OUT,
             tokenInAmounts,
             poolOutAmountMin
         );
@@ -478,7 +478,7 @@ contract BActions {
         BPoolTest poolIn,
         uint poolInAmount,
         uint[] calldata tokenOutAmountsMin,
-        BalancerPool poolOut,
+        BootstrapNftPool poolOut,
         uint poolOutAmountMin
     ) external {
         address[] memory tokens = poolIn.getFinalTokens();
@@ -502,7 +502,7 @@ contract BActions {
         }
 
         bytes memory userData = abi.encode(
-            BalancerPool.JoinKind.EXACT_TOKENS_IN_FOR_BPT_OUT,
+            BootstrapNftPool.JoinKind.EXACT_TOKENS_IN_FOR_BPT_OUT,
             tokenInAmounts,
             poolOutAmountMin
         );

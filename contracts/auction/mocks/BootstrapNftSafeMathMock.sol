@@ -3,44 +3,44 @@ pragma solidity ^0.8.0;
 
 // Imports
 
-import ".././libraries/BalancerSafeMath.sol";
+import ".././libraries/BootstrapNftSafeMath.sol";
 
 // Contracts
 
 /*
- * @author Balancer Labs
- * @title Wrap BalancerSafeMath for testing
+ * @author BootstrapNft Labs
+ * @title Wrap BootstrapNftSafeMath for testing
 */
-contract BalancerSafeMathMock {
+contract BootstrapNftSafeMathMock {
     function bmul(uint a, uint b) external pure returns (uint) {
-        return BalancerSafeMath.bmul(a, b);
+        return BootstrapNftSafeMath.bmul(a, b);
     }
 
     function bdiv(uint a, uint b) external pure returns (uint) {
-        return BalancerSafeMath.bdiv(a, b);
+        return BootstrapNftSafeMath.bdiv(a, b);
     }
 
     function bsub(uint a, uint b) external pure returns (uint) {
-        return BalancerSafeMath.bsub(a, b);
+        return BootstrapNftSafeMath.bsub(a, b);
     }
 
     function badd(uint a, uint b) external pure returns (uint) {
-        return BalancerSafeMath.badd(a, b);
+        return BootstrapNftSafeMath.badd(a, b);
     }
 
     function bmod(uint a, uint b) external pure returns (uint) {
-        return BalancerSafeMath.bmod(a, b);
+        return BootstrapNftSafeMath.bmod(a, b);
     }
 
     function bmax(uint a, uint b) external pure returns (uint) {
-        return BalancerSafeMath.bmax(a, b);
+        return BootstrapNftSafeMath.bmax(a, b);
     }
 
     function bmin(uint a, uint b) external pure returns (uint) {
-        return BalancerSafeMath.bmin(a, b);
+        return BootstrapNftSafeMath.bmin(a, b);
     }
 
     function baverage(uint a, uint b) external pure returns (uint) {
-        return BalancerSafeMath.baverage(a, b);
+        return BootstrapNftSafeMath.baverage(a, b);
     }
 }

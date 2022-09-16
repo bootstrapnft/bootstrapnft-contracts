@@ -10,7 +10,7 @@ const zeroAddr = "0x0000000000000000000000000000000000000000";
 const notZeroAddr = "0x000000000000000000000000000000000000dead";
 
 let primary, alice, bob;
-let nftx;
+let nftFractionlize;
 let staking;
 let erc721;
 let erc1155;
@@ -35,7 +35,7 @@ describe("Main", function () {
 
     const Staking = await ethers.getContractFactory("LPStaking");
     staking = await upgrades.deployProxy(Staking, [provider.address], {
-      initializer: "__NFTXLPStaking__init",
+      initializer: "__LPStaking__init",
       unsafeAllow: 'delegatecall'
     });
     await staking.deployed();
@@ -57,19 +57,19 @@ describe("Main", function () {
     );
     await feeDistrib.deployed();
 
-    const Nftx = await ethers.getContractFactory("VaultFactoryUpgradeable");
-    nftx = await upgrades.deployProxy(
-      Nftx,
+    const VaultFactory = await ethers.getContractFactory("VaultFactoryUpgradeable");
+    nftFractionlize = await upgrades.deployProxy(
+      VaultFactory,
       [vault.address, feeDistrib.address],
       {
-        initializer: "__NFTXVaultFactory_init",
+        initializer: "__VaultFactory_init",
         unsafeAllow: 'delegatecall'
       }
     );
-    await nftx.deployed();
+    await nftFractionlize.deployed();
 
-    await feeDistrib.connect(primary).setNFTXVaultFactory(nftx.address);
-    await staking.connect(primary).setNFTXVaultFactory(nftx.address);
+    await feeDistrib.connect(primary).setVaultFactory(nftFractionlize.address);
+    await staking.connect(primary).setVaultFactory(nftFractionlize.address);
 
     const Erc721 = await ethers.getContractFactory("MockERC721");
     erc721 = await Erc721.deploy(`CryptoPandas`, `CRYPTOPANDAS`);
@@ -94,35 +94,35 @@ describe("Main", function () {
   ////////////////////////////
 
   it("Should set alice as guardian", async () => {
-    await nftx.setIsGuardian(alice.address, true);
+    await nftFractionlize.setIsGuardian(alice.address, true);
   });
 
   it("Should set excluded from fees", async () => {
-    await nftx.setFeeExclusion(alice.address, true);
-    expect(await nftx.excludedFromFees(alice.address)).to.be.equal(true)
-    await nftx.setFeeExclusion(alice.address, false);
-    expect(await nftx.excludedFromFees(alice.address)).to.be.equal(false)
+    await nftFractionlize.setFeeExclusion(alice.address, true);
+    expect(await nftFractionlize.excludedFromFees(alice.address)).to.be.equal(true)
+    await nftFractionlize.setFeeExclusion(alice.address, false);
+    expect(await nftFractionlize.excludedFromFees(alice.address)).to.be.equal(false)
   });
 
   it("Should allow alice as guardian to pause vault creation", async () => {
-    await nftx.connect(alice).pause(0);
-    expect(await nftx.isPaused(0)).to.equal(true);
+    await nftFractionlize.connect(alice).pause(0);
+    expect(await nftFractionlize.isPaused(0)).to.equal(true);
   });
 
   it("Should not allow vault creation after pausing", async () => {
-    let respPromise = nftx
+    let respPromise = nftFractionlize
       .connect(alice)
       .createVault("CryptoPandas", "PANDA", erc721.address, false, true);
     await expectRevert(respPromise);
   });
 
   it("Should allow owner to unpause vault creation", async () => {
-    await nftx.connect(primary).unpause(0);
-    expect(await nftx.isPaused(0)).to.equal(false);
+    await nftFractionlize.connect(primary).unpause(0);
+    expect(await nftFractionlize.isPaused(0)).to.equal(false);
   });
 
   it("Should allow vault creation", async () => {
-    const response = await nftx.createVault(
+    const response = await nftFractionlize.createVault(
       "CryptoPandas",
       "PANDA",
       erc721.address,
@@ -133,7 +133,7 @@ describe("Main", function () {
     const vaultId = receipt.events
       .find((elem) => elem.event === "NewVault")
       .args[0].toString();
-    const vaultAddr = await nftx.vault(vaultId);
+    const vaultAddr = await nftFractionlize.vault(vaultId);
     const vaultArtifact = await artifacts.readArtifact("VaultUpgradeable");
     const vault = new ethers.Contract(
       vaultAddr,
@@ -172,7 +172,7 @@ describe("Main", function () {
   });
 
   it("Should allow alice as guardian to pause minting", async () => {
-    await nftx.connect(alice).pause(1);
+    await nftFractionlize.connect(alice).pause(1);
   });
 
   it("Should not allow minting after pausing", async () => {
@@ -190,13 +190,13 @@ describe("Main", function () {
   });
 
   it("Should not allow guardian to unpause", async () => {
-    await expectRevert(nftx.connect(alice).unpause(1));
-    expect(await nftx.isPaused(1)).to.equal(true);
+    await expectRevert(nftFractionlize.connect(alice).unpause(1));
+    expect(await nftFractionlize.isPaused(1)).to.equal(true);
   });
 
   it("Should allow owner to unpause minting", async () => {
-    await nftx.connect(primary).unpause(1);
-    expect(await nftx.isPaused(1)).to.equal(false);
+    await nftFractionlize.connect(primary).unpause(1);
+    expect(await nftFractionlize.isPaused(1)).to.equal(false);
   });
 
   it("Should allow minting one at a time through pushing by alice", async () => {
@@ -238,7 +238,7 @@ describe("Main", function () {
   });
 
   it("Should allow alice as guardian to pause redeeming", async () => {
-    await nftx.connect(alice).pause(2);
+    await nftFractionlize.connect(alice).pause(2);
   });
 
   it("Should not allow redeeming by bob once paused", async () => {
@@ -246,8 +246,8 @@ describe("Main", function () {
   });
 
   it("Should allow owner to unpause redeeming", async () => {
-    await nftx.connect(primary).unpause(2);
-    expect(await nftx.isPaused(2)).to.equal(false);
+    await nftFractionlize.connect(primary).unpause(2);
+    expect(await nftFractionlize.isPaused(2)).to.equal(false);
   });
 
   it("Should allow redeeming one at a time by alice", async () => {
@@ -336,7 +336,7 @@ describe("Main", function () {
   /////////////////////////////
 
   it("Should allow ERC1155 vault creation", async () => {
-    const response = await nftx.createVault(
+    const response = await nftFractionlize.createVault(
       "CryptoNinjas",
       "NINJA",
       erc1155.address,
@@ -347,7 +347,7 @@ describe("Main", function () {
     const vaultId = receipt.events
       .find((elem) => elem.event === "NewVault")
       .args[0].toString();
-    const vaultAddr = await nftx.vault(vaultId);
+    const vaultAddr = await nftFractionlize.vault(vaultId);
     const vaultArtifact = await artifacts.readArtifact("VaultUpgradeable");
     const vault = new ethers.Contract(
       vaultAddr,
@@ -470,7 +470,7 @@ describe("Main", function () {
     const testFactoryUpgrade = await TestFactoryUpgrade.deploy();
     await testFactoryUpgrade.deployed();
     const upgraded = await upgrades.upgradeProxy(
-      nftx.address,
+      nftFractionlize.address,
       TestFactoryUpgrade, {
         unsafeAllow: 'delegatecall'
       }
@@ -490,8 +490,8 @@ describe("Main", function () {
     );
     const testVaultUpgrade = await TestVaultUpgrade.deploy();
     await testVaultUpgrade.deployed();
-    await nftx.upgradeChildTo(testVaultUpgrade.address);
-    expect(await nftx.childImplementation()).to.equal(testVaultUpgrade.address);
+    await nftFractionlize.upgradeChildTo(testVaultUpgrade.address);
+    expect(await nftFractionlize.childImplementation()).to.equal(testVaultUpgrade.address);
     const newVault = await ethers.getContractAt(
       "TestVaultUpgrade",
       vaults[0].address

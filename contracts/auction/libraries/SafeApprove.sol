@@ -8,7 +8,7 @@ import "../interfaces/IERC20.sol";
 // Libraries
 
 /**
- * @author PieDAO (ported to Balancer Labs)
+ * @author PieDAO (ported to BootstrapNft Labs)
  * @title SafeApprove - set approval for tokens that require 0 prior approval
  * @dev Perhaps to address the known ERC20 race condition issue
  *      See https://github.com/crytic/not-so-smart-contracts/tree/master/race_condition

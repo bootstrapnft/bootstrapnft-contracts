@@ -4,14 +4,14 @@ pragma solidity ^0.8.0;
 
 // Imports
 
-import "./BalancerConstants.sol";
+import "./BootstrapNftConstants.sol";
 
 /**
- * @author Balancer Labs
+ * @author BootstrapNft Labs
  * @title SafeMath - wrap Solidity operators to prevent underflow/overflow
  * @dev badd and bsub are basically identical to OpenZeppelin SafeMath; mul/div have extra checks
  */
-library BalancerSafeMath {
+library BootstrapNftSafeMath {
     /**
      * @notice Safe addition
      * @param a - first operand
@@ -73,9 +73,9 @@ library BalancerSafeMath {
         require(c0 / a == b, "ERR_MUL_OVERFLOW");
 
         // Round to 0 if x*y < BONE/2?
-        uint c1 = c0 + (BalancerConstants.BONE / 2);
+        uint c1 = c0 + (BootstrapNftConstants.BONE / 2);
         require(c1 >= c0, "ERR_MUL_OVERFLOW");
-        uint c2 = c1 / BalancerConstants.BONE;
+        uint c2 = c1 / BootstrapNftConstants.BONE;
         return c2;
     }
 
@@ -94,8 +94,8 @@ library BalancerSafeMath {
             return 0;
         }
 
-        uint c0 = dividend * BalancerConstants.BONE;
-        require(c0 / dividend == BalancerConstants.BONE, "ERR_DIV_INTERNAL"); // bmul overflow
+        uint c0 = dividend * BootstrapNftConstants.BONE;
+        require(c0 / dividend == BootstrapNftConstants.BONE, "ERR_DIV_INTERNAL"); // bmul overflow
 
         uint c1 = c0 + (divisor / 2);
         require(c1 >= c0, "ERR_DIV_INTERNAL"); //  badd require

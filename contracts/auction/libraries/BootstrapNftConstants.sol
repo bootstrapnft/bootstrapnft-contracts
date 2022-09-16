@@ -2,11 +2,11 @@
 pragma solidity ^0.8.0;
 
 /**
- * @author Balancer Labs
+ * @author BootstrapNft Labs
  * @title Put all the constants in one place
  */
 
-library BalancerConstants {
+library BootstrapNftConstants {
     // State variables (must be constant in a library)
 
     // B "ONE" - all math is in the "realm" of 10 ** 18;

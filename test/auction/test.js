@@ -36,20 +36,20 @@ describe("Test Auction", function () {
 
 
         const BFactory = await ethers.getContractFactory("BFactory");
-        const BalancerSafeMath = await ethers.getContractFactory("BalancerSafeMath");
-        const BalancerSafeMathMock = await ethers.getContractFactory("BalancerSafeMathMock");
+        const BootstrapNftSafeMath = await ethers.getContractFactory("BootstrapNftSafeMath");
+        const BootstrapNftSafeMathMock = await ethers.getContractFactory("BootstrapNftSafeMathMock");
 
         bfactory = await BFactory.deploy();
         await bfactory.deployed();
         console.log("bfactory address:", bfactory.address)
 
-        const balancerSafeMathMock = await BalancerSafeMathMock.deploy();
-        await balancerSafeMathMock.deployed();
-        console.log("balancerSafeMathMock address:", balancerSafeMathMock.address)
+        const bootstrapNftSafeMathMock = await BootstrapNftSafeMathMock.deploy();
+        await bootstrapNftSafeMathMock.deployed();
+        console.log("bootstrapNftSafeMathMock address:", bootstrapNftSafeMathMock.address)
 
-        const balancerSafeMath = await BalancerSafeMath.deploy();
-        await balancerSafeMath.deployed();
-        console.log("balancerSafeMath address:", balancerSafeMath.address)
+        const bootstrapNftSafeMath = await BootstrapNftSafeMath.deploy();
+        await bootstrapNftSafeMath.deployed();
+        console.log("bootstrapNftSafeMath address:", bootstrapNftSafeMath.address)
 
         const rightsManager = await RightsManager.deploy();
         await rightsManager.deployed();
@@ -62,7 +62,7 @@ describe("Test Auction", function () {
 
         const CRPFactory = await ethers.getContractFactory("CRPFactory", {
             libraries: {
-                BalancerSafeMath: balancerSafeMath.address,
+                BootstrapNftSafeMath: bootstrapNftSafeMath.address,
                 RightsManager: rightsManager.address,
                 SmartPoolManager: smartPoolManager.address,
             },
@@ -75,7 +75,7 @@ describe("Test Auction", function () {
 
         // const ESPFactory = await ethers.getContractFactory("ESPFactory", {
         //     libraries: {
-        //         BalancerSafeMath: balancerSafeMath.address,
+        //         BootstrapNftSafeMath: bootstrapNftSafeMath.address,
         //         RightsManager: rightsManager.address,
         //         SmartPoolManager: smartPoolManager.address,
         //     },
@@ -95,7 +95,7 @@ describe("Test Auction", function () {
         BPool = await ethers.getContractFactory('BPool')
         ConfigurableRightsPool = await ethers.getContractFactory("ConfigurableRightsPool", {
             libraries: {
-                BalancerSafeMath: balancerSafeMath.address,
+                BootstrapNftSafeMath: bootstrapNftSafeMath.address,
                 RightsManager: rightsManager.address,
                 SmartPoolManager: smartPoolManager.address,
             },
@@ -765,7 +765,7 @@ describe("Test Auction", function () {
         })
 
     })
-    describe.only("three token pair Pool Flow", function () {
+    describe("three token pair Pool Flow", function () {
 
         let primaryProxyAddress;
         let poolAddress = ""

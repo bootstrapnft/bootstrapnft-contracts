@@ -9,11 +9,11 @@ pragma experimental ABIEncoderV2;
 import "../interfaces/IERC20.sol";
 import "../interfaces/IConfigurableRightsPool.sol";
 import "../IBFactory.sol";
-import "./BalancerSafeMath.sol";
+import "./BootstrapNftSafeMath.sol";
 import "./SafeApprove.sol";
 
 /**
- * @author Balancer Labs
+ * @author BootstrapNft Labs
  * @title Factor out the weight updates
  */
 library SmartPoolManager {
@@ -56,8 +56,8 @@ library SmartPoolManager {
     )
     external
     {
-        require(newWeight >= BalancerConstants.MIN_WEIGHT, "ERR_MIN_WEIGHT");
-        require(newWeight <= BalancerConstants.MAX_WEIGHT, "ERR_MAX_WEIGHT");
+        require(newWeight >= BootstrapNftConstants.MIN_WEIGHT, "ERR_MIN_WEIGHT");
+        require(newWeight <= BootstrapNftConstants.MAX_WEIGHT, "ERR_MAX_WEIGHT");
 
         uint currentWeight = bPool.getDenormalizedWeight(token);
         // Save gas; return immediately on NOOP
@@ -76,20 +76,20 @@ library SmartPoolManager {
         if (newWeight < currentWeight) {
             // This means the controller will withdraw tokens to keep price
             // So they need to redeem PCTokens
-            deltaWeight = BalancerSafeMath.bsub(currentWeight, newWeight);
+            deltaWeight = BootstrapNftSafeMath.bsub(currentWeight, newWeight);
 
             // poolShares = totalSupply * (deltaWeight / totalWeight)
-            poolShares = BalancerSafeMath.bmul(totalSupply,
-                BalancerSafeMath.bdiv(deltaWeight, totalWeight));
+            poolShares = BootstrapNftSafeMath.bmul(totalSupply,
+                BootstrapNftSafeMath.bdiv(deltaWeight, totalWeight));
 
             // deltaBalance = currentBalance * (deltaWeight / currentWeight)
-            deltaBalance = BalancerSafeMath.bmul(currentBalance,
-                BalancerSafeMath.bdiv(deltaWeight, currentWeight));
+            deltaBalance = BootstrapNftSafeMath.bmul(currentBalance,
+                BootstrapNftSafeMath.bdiv(deltaWeight, currentWeight));
 
             // New balance cannot be lower than MIN_BALANCE
-            newBalance = BalancerSafeMath.bsub(currentBalance, deltaBalance);
+            newBalance = BootstrapNftSafeMath.bsub(currentBalance, deltaBalance);
 
-            require(newBalance >= BalancerConstants.MIN_BALANCE, "ERR_MIN_BALANCE");
+            require(newBalance >= BootstrapNftConstants.MIN_BALANCE, "ERR_MIN_BALANCE");
 
             // First get the tokens from this contract (Pool Controller) to msg.sender
             bPool.rebind(token, newBalance, newWeight);
@@ -102,24 +102,24 @@ library SmartPoolManager {
         else {
             // This means the controller will deposit tokens to keep the price.
             // They will be minted and given PCTokens
-            deltaWeight = BalancerSafeMath.bsub(newWeight, currentWeight);
+            deltaWeight = BootstrapNftSafeMath.bsub(newWeight, currentWeight);
 
-            require(BalancerSafeMath.badd(totalWeight, deltaWeight) <= BalancerConstants.MAX_TOTAL_WEIGHT,
+            require(BootstrapNftSafeMath.badd(totalWeight, deltaWeight) <= BootstrapNftConstants.MAX_TOTAL_WEIGHT,
                 "ERR_MAX_TOTAL_WEIGHT");
 
             // poolShares = totalSupply * (deltaWeight / totalWeight)
-            poolShares = BalancerSafeMath.bmul(totalSupply,
-                BalancerSafeMath.bdiv(deltaWeight, totalWeight));
+            poolShares = BootstrapNftSafeMath.bmul(totalSupply,
+                BootstrapNftSafeMath.bdiv(deltaWeight, totalWeight));
             // deltaBalance = currentBalance * (deltaWeight / currentWeight)
-            deltaBalance = BalancerSafeMath.bmul(currentBalance,
-                BalancerSafeMath.bdiv(deltaWeight, currentWeight));
+            deltaBalance = BootstrapNftSafeMath.bmul(currentBalance,
+                BootstrapNftSafeMath.bdiv(deltaWeight, currentWeight));
 
             // First gets the tokens from msg.sender to this contract (Pool Controller)
             bool xfer = IERC20(token).transferFrom(msg.sender, address(this), deltaBalance);
             require(xfer, "ERR_ERC20_FALSE");
 
             // Now with the tokens this contract can bind them to the pool it controls
-            bPool.rebind(token, BalancerSafeMath.badd(currentBalance, deltaBalance), newWeight);
+            bPool.rebind(token, BootstrapNftSafeMath.badd(currentBalance, deltaBalance), newWeight);
 
             self.mintPoolShareFromLib(poolShares);
             self.pushPoolShareFromLib(msg.sender, poolShares);
@@ -157,8 +157,8 @@ library SmartPoolManager {
             currentBlock = block.number;
         }
 
-        uint blockPeriod = BalancerSafeMath.bsub(gradualUpdate.endBlock, gradualUpdate.startBlock);
-        uint blocksElapsed = BalancerSafeMath.bsub(currentBlock, gradualUpdate.startBlock);
+        uint blockPeriod = BootstrapNftSafeMath.bsub(gradualUpdate.endBlock, gradualUpdate.startBlock);
+        uint blocksElapsed = BootstrapNftSafeMath.bsub(currentBlock, gradualUpdate.startBlock);
         uint weightDelta;
         uint deltaPerBlock;
         uint newWeight;
@@ -176,29 +176,29 @@ library SmartPoolManager {
                     // We are decreasing the weight
 
                     // First get the total weight delta
-                    weightDelta = BalancerSafeMath.bsub(gradualUpdate.startWeights[i],
+                    weightDelta = BootstrapNftSafeMath.bsub(gradualUpdate.startWeights[i],
                         gradualUpdate.endWeights[i]);
                     // And the amount it should change per block = total change/number of blocks in the period
-                    deltaPerBlock = BalancerSafeMath.bdiv(weightDelta, blockPeriod);
+                    deltaPerBlock = BootstrapNftSafeMath.bdiv(weightDelta, blockPeriod);
                     //deltaPerBlock = bdivx(weightDelta, blockPeriod);
 
                     // newWeight = startWeight - (blocksElapsed * deltaPerBlock)
-                    newWeight = BalancerSafeMath.bsub(gradualUpdate.startWeights[i],
-                        BalancerSafeMath.bmul(blocksElapsed, deltaPerBlock));
+                    newWeight = BootstrapNftSafeMath.bsub(gradualUpdate.startWeights[i],
+                        BootstrapNftSafeMath.bmul(blocksElapsed, deltaPerBlock));
                 }
                 else {
                     // We are increasing the weight
 
                     // First get the total weight delta
-                    weightDelta = BalancerSafeMath.bsub(gradualUpdate.endWeights[i],
+                    weightDelta = BootstrapNftSafeMath.bsub(gradualUpdate.endWeights[i],
                         gradualUpdate.startWeights[i]);
                     // And the amount it should change per block = total change/number of blocks in the period
-                    deltaPerBlock = BalancerSafeMath.bdiv(weightDelta, blockPeriod);
+                    deltaPerBlock = BootstrapNftSafeMath.bdiv(weightDelta, blockPeriod);
                     //deltaPerBlock = bdivx(weightDelta, blockPeriod);
 
                     // newWeight = startWeight + (blocksElapsed * deltaPerBlock)
-                    newWeight = BalancerSafeMath.badd(gradualUpdate.startWeights[i],
-                        BalancerSafeMath.bmul(blocksElapsed, deltaPerBlock));
+                    newWeight = BootstrapNftSafeMath.badd(gradualUpdate.startWeights[i],
+                        BootstrapNftSafeMath.bmul(blocksElapsed, deltaPerBlock));
                 }
 
                 uint bal = bPool.getBalance(tokens[i]);
@@ -235,12 +235,12 @@ library SmartPoolManager {
     {
         require(!bPool.isBound(token), "ERR_IS_BOUND");
 
-        require(denormalizedWeight <= BalancerConstants.MAX_WEIGHT, "ERR_WEIGHT_ABOVE_MAX");
-        require(denormalizedWeight >= BalancerConstants.MIN_WEIGHT, "ERR_WEIGHT_BELOW_MIN");
-        require(BalancerSafeMath.badd(bPool.getTotalDenormalizedWeight(),
-            denormalizedWeight) <= BalancerConstants.MAX_TOTAL_WEIGHT,
+        require(denormalizedWeight <= BootstrapNftConstants.MAX_WEIGHT, "ERR_WEIGHT_ABOVE_MAX");
+        require(denormalizedWeight >= BootstrapNftConstants.MIN_WEIGHT, "ERR_WEIGHT_BELOW_MIN");
+        require(BootstrapNftSafeMath.badd(bPool.getTotalDenormalizedWeight(),
+            denormalizedWeight) <= BootstrapNftConstants.MAX_TOTAL_WEIGHT,
             "ERR_MAX_TOTAL_WEIGHT");
-        require(balance >= BalancerConstants.MIN_BALANCE, "ERR_BALANCE_BELOW_MIN");
+        require(balance >= BootstrapNftConstants.MIN_BALANCE, "ERR_BALANCE_BELOW_MIN");
 
         newToken.addr = token;
         newToken.balance = balance;
@@ -265,13 +265,13 @@ library SmartPoolManager {
     external
     {
         require(newToken.isCommitted, "ERR_NO_TOKEN_COMMIT");
-        require(BalancerSafeMath.bsub(block.number, newToken.commitBlock) >= addTokenTimeLockInBlocks,
+        require(BootstrapNftSafeMath.bsub(block.number, newToken.commitBlock) >= addTokenTimeLockInBlocks,
             "ERR_TIMELOCK_STILL_COUNTING");
 
         uint totalSupply = self.totalSupply();
 
         // poolShares = totalSupply * newTokenWeight / totalWeight
-        uint poolShares = BalancerSafeMath.bdiv(BalancerSafeMath.bmul(totalSupply, newToken.denorm),
+        uint poolShares = BootstrapNftSafeMath.bdiv(BootstrapNftSafeMath.bmul(totalSupply, newToken.denorm),
             bPool.getTotalDenormalizedWeight());
 
         // Clear this to allow adding more tokens
@@ -284,7 +284,7 @@ library SmartPoolManager {
         // Now with the tokens this contract can bind them to the pool it controls
         // Approves bPool to pull from this controller
         // Approve unlimited, same as when creating the pool, so they can join pools later
-        returnValue = SafeApprove.safeApprove(IERC20(newToken.addr), address(bPool), BalancerConstants.MAX_UINT);
+        returnValue = SafeApprove.safeApprove(IERC20(newToken.addr), address(bPool), BootstrapNftConstants.MAX_UINT);
         require(returnValue, "ERR_ERC20_FALSE");
 
         bPool.bind(newToken.addr, newToken.balance, newToken.denorm);
@@ -314,7 +314,7 @@ library SmartPoolManager {
         uint totalSupply = self.totalSupply();
 
         // poolShares = totalSupply * tokenWeight / totalWeight
-        uint poolShares = BalancerSafeMath.bdiv(BalancerSafeMath.bmul(totalSupply,
+        uint poolShares = BootstrapNftSafeMath.bdiv(BootstrapNftSafeMath.bmul(totalSupply,
             bPool.getDenormalizedWeight(token)),
             bPool.getTotalDenormalizedWeight());
 
@@ -322,7 +322,7 @@ library SmartPoolManager {
         // Have to get it before unbinding
         uint balance = bPool.getBalance(token);
 
-        // Unbind and get the tokens out of balancer pool
+        // Unbind and get the tokens out of bootstrapNft pool
         bPool.unbind(token);
 
         // Now with the tokens this contract can send them to msg.sender
@@ -385,7 +385,7 @@ library SmartPoolManager {
 
         // Enforce a minimum time over which to make the changes
         // The also prevents endBlock <= startBlock
-        require(BalancerSafeMath.bsub(endBlock, gradualUpdate.startBlock) >= minimumWeightChangeBlockPeriod,
+        require(BootstrapNftSafeMath.bsub(endBlock, gradualUpdate.startBlock) >= minimumWeightChangeBlockPeriod,
             "ERR_WEIGHT_CHANGE_TIME_BELOW_MIN");
 
         address[] memory tokens = bPool.getCurrentTokens();
@@ -401,13 +401,13 @@ library SmartPoolManager {
         // This loop contains external calls
         // External calls are to math libraries or the underlying pool, so low risk
         for (uint i = 0; i < tokens.length; i++) {
-            require(newWeights[i] <= BalancerConstants.MAX_WEIGHT, "ERR_WEIGHT_ABOVE_MAX");
-            require(newWeights[i] >= BalancerConstants.MIN_WEIGHT, "ERR_WEIGHT_BELOW_MIN");
+            require(newWeights[i] <= BootstrapNftConstants.MAX_WEIGHT, "ERR_WEIGHT_ABOVE_MAX");
+            require(newWeights[i] >= BootstrapNftConstants.MIN_WEIGHT, "ERR_WEIGHT_BELOW_MIN");
 
-            weightsSum = BalancerSafeMath.badd(weightsSum, newWeights[i]);
+            weightsSum = BootstrapNftSafeMath.badd(weightsSum, newWeights[i]);
             gradualUpdate.startWeights[i] = bPool.getDenormalizedWeight(tokens[i]);
         }
-        require(weightsSum <= BalancerConstants.MAX_TOTAL_WEIGHT, "ERR_MAX_TOTAL_WEIGHT");
+        require(weightsSum <= BootstrapNftConstants.MAX_TOTAL_WEIGHT, "ERR_MAX_TOTAL_WEIGHT");
 
         gradualUpdate.endBlock = endBlock;
         gradualUpdate.endWeights = newWeights;
@@ -437,8 +437,8 @@ library SmartPoolManager {
 
         uint poolTotal = self.totalSupply();
         // Subtract  1 to ensure any rounding errors favor the pool
-        uint ratio = BalancerSafeMath.bdiv(poolAmountOut,
-            BalancerSafeMath.bsub(poolTotal, 1));
+        uint ratio = BootstrapNftSafeMath.bdiv(poolAmountOut,
+            BootstrapNftSafeMath.bsub(poolTotal, 1));
 
         require(ratio != 0, "ERR_MATH_APPROX");
 
@@ -452,8 +452,8 @@ library SmartPoolManager {
             address t = tokens[i];
             uint bal = bPool.getBalance(t);
             // Add 1 to ensure any rounding errors favor the pool
-            uint tokenAmountIn = BalancerSafeMath.bmul(ratio,
-                BalancerSafeMath.badd(bal, 1));
+            uint tokenAmountIn = BootstrapNftSafeMath.bmul(ratio,
+                BootstrapNftSafeMath.badd(bal, 1));
 
             require(tokenAmountIn != 0, "ERR_MATH_APPROX");
             require(tokenAmountIn <= maxAmountsIn[i], "ERR_LIMIT_IN");
@@ -489,11 +489,11 @@ library SmartPoolManager {
         uint poolTotal = self.totalSupply();
 
         // Calculate exit fee and the final amount in
-        exitFee = BalancerSafeMath.bmul(poolAmountIn, BalancerConstants.EXIT_FEE);
-        pAiAfterExitFee = BalancerSafeMath.bsub(poolAmountIn, exitFee);
+        exitFee = BootstrapNftSafeMath.bmul(poolAmountIn, BootstrapNftConstants.EXIT_FEE);
+        pAiAfterExitFee = BootstrapNftSafeMath.bsub(poolAmountIn, exitFee);
 
-        uint ratio = BalancerSafeMath.bdiv(pAiAfterExitFee,
-            BalancerSafeMath.badd(poolTotal, 1));
+        uint ratio = BootstrapNftSafeMath.bdiv(pAiAfterExitFee,
+            BootstrapNftSafeMath.badd(poolTotal, 1));
 
         require(ratio != 0, "ERR_MATH_APPROX");
 
@@ -505,8 +505,8 @@ library SmartPoolManager {
             address t = tokens[i];
             uint bal = bPool.getBalance(t);
             // Subtract 1 to ensure any rounding errors favor the pool
-            uint tokenAmountOut = BalancerSafeMath.bmul(ratio,
-                BalancerSafeMath.bsub(bal, 1));
+            uint tokenAmountOut = BootstrapNftSafeMath.bmul(ratio,
+                BootstrapNftSafeMath.bsub(bal, 1));
 
             require(tokenAmountOut != 0, "ERR_MATH_APPROX");
             require(tokenAmountOut >= minAmountsOut[i], "ERR_LIMIT_OUT");
@@ -537,8 +537,8 @@ library SmartPoolManager {
     returns (uint poolAmountOut)
     {
         require(bPool.isBound(tokenIn), "ERR_NOT_BOUND");
-        require(tokenAmountIn <= BalancerSafeMath.bmul(bPool.getBalance(tokenIn),
-            BalancerConstants.MAX_IN_RATIO),
+        require(tokenAmountIn <= BootstrapNftSafeMath.bmul(bPool.getBalance(tokenIn),
+            BootstrapNftConstants.MAX_IN_RATIO),
             "ERR_MAX_IN_RATIO");
 
         poolAmountOut = bPool.calcPoolOutGivenSingleIn(
@@ -588,8 +588,8 @@ library SmartPoolManager {
         require(tokenAmountIn != 0, "ERR_MATH_APPROX");
         require(tokenAmountIn <= maxAmountIn, "ERR_LIMIT_IN");
 
-        require(tokenAmountIn <= BalancerSafeMath.bmul(bPool.getBalance(tokenIn),
-            BalancerConstants.MAX_IN_RATIO),
+        require(tokenAmountIn <= BootstrapNftSafeMath.bmul(bPool.getBalance(tokenIn),
+            BootstrapNftConstants.MAX_IN_RATIO),
             "ERR_MAX_IN_RATIO");
     }
 
@@ -627,11 +627,11 @@ library SmartPoolManager {
         );
 
         require(tokenAmountOut >= minAmountOut, "ERR_LIMIT_OUT");
-        require(tokenAmountOut <= BalancerSafeMath.bmul(bPool.getBalance(tokenOut),
-            BalancerConstants.MAX_OUT_RATIO),
+        require(tokenAmountOut <= BootstrapNftSafeMath.bmul(bPool.getBalance(tokenOut),
+            BootstrapNftConstants.MAX_OUT_RATIO),
             "ERR_MAX_OUT_RATIO");
 
-        exitFee = BalancerSafeMath.bmul(poolAmountIn, BalancerConstants.EXIT_FEE);
+        exitFee = BootstrapNftSafeMath.bmul(poolAmountIn, BootstrapNftConstants.EXIT_FEE);
     }
 
     /**
@@ -657,8 +657,8 @@ library SmartPoolManager {
     returns (uint exitFee, uint poolAmountIn)
     {
         require(bPool.isBound(tokenOut), "ERR_NOT_BOUND");
-        require(tokenAmountOut <= BalancerSafeMath.bmul(bPool.getBalance(tokenOut),
-            BalancerConstants.MAX_OUT_RATIO),
+        require(tokenAmountOut <= BootstrapNftSafeMath.bmul(bPool.getBalance(tokenOut),
+            BootstrapNftConstants.MAX_OUT_RATIO),
             "ERR_MAX_OUT_RATIO");
         poolAmountIn = bPool.calcPoolInGivenSingleOut(
             bPool.getBalance(tokenOut),
@@ -672,7 +672,7 @@ library SmartPoolManager {
         require(poolAmountIn != 0, "ERR_MATH_APPROX");
         require(poolAmountIn <= maxPoolAmountIn, "ERR_LIMIT_IN");
 
-        exitFee = BalancerSafeMath.bmul(poolAmountIn, BalancerConstants.EXIT_FEE);
+        exitFee = BootstrapNftSafeMath.bmul(poolAmountIn, BootstrapNftConstants.EXIT_FEE);
     }
 
     // Internal functions

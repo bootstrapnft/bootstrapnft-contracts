@@ -64,7 +64,7 @@ abstract contract BTokenBase is BNum,IERC20 {
 
 contract BToken is BTokenBase {
 
-    string  private _name     = "Balancer Pool Token";
+    string  private _name     = "BootstrapNft Pool Token";
     string  private _symbol   = "BPT";
     uint8   private _decimals = 18;
 

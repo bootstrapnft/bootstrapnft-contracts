@@ -24,7 +24,7 @@ async function main() {
 
     const Staking = await ethers.getContractFactory("LPStaking");
     staking = await upgrades.deployProxy(Staking, [provider.address], {
-        initializer: "__NFTXLPStaking__init",
+        initializer: "__LPStaking__init",
         unsafeAllow: 'delegatecall'
     });
     await staking.deployed();
@@ -60,28 +60,28 @@ async function main() {
     await feeDistrib.deployed();
     console.log("FeeDistributor:", feeDistrib.address);
 
-    const Nftx = await ethers.getContractFactory("VaultFactoryUpgradeable");
-    nftx = await upgrades.deployProxy(Nftx, [vault.address, feeDistrib.address], {
-        initializer: "__NFTXVaultFactory_init",
+    const VaultFactory = await ethers.getContractFactory("VaultFactoryUpgradeable");
+    vaultFactory = await upgrades.deployProxy(VaultFactory, [vault.address, feeDistrib.address], {
+        initializer: "__VaultFactory_init",
         unsafeAllow: 'delegatecall'
     });
-    await nftx.deployed();
-    console.log("VaultFactory:", nftx.address);
+    await vaultFactory.deployed();
+    console.log("VaultFactory:", vaultFactory.address);
 
-    await feeDistrib.setNFTXVaultFactory(nftx.address);
-    await staking.setNFTXVaultFactory(nftx.address);
+    await feeDistrib.setVaultFactory(vaultFactory.address);
+    await staking.setVaultFactory(vaultFactory.address);
 
 
     const ProxyController = await ethers.getContractFactory("ProxyController");
 
     const proxyController = await ProxyController.deploy(
-        nftx.address,
+        vaultFactory.address,
         staking.address,
         feeDistrib.address
     );
     await proxyController.deployed();
     console.log("ProxyController address:", proxyController.address);
-    await upgrades.admin.changeProxyAdmin(nftx.address, proxyController.address);
+    await upgrades.admin.changeProxyAdmin(vaultFactory.address, proxyController.address);
     await upgrades.admin.changeProxyAdmin(
         staking.address,
         proxyController.address
@@ -105,7 +105,7 @@ async function main() {
         await provider.transferOwnership(ownerAddress);
         await staking.transferOwnership(ownerAddress);
         await feeDistrib.transferOwnership(ownerAddress);
-        await nftx.transferOwnership(ownerAddress);
+        await vaultFactory.transferOwnership(ownerAddress);
         await proxyController.transferOwnership(ownerAddress);
     }
 }

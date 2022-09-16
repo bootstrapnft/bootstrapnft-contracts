@@ -1,13 +1,26 @@
 [
   {
+    "anonymous": false,
     "inputs": [
       {
-        "internalType": "contract ConfigurableRightsPool",
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tokenAmountOut",
+        "type": "uint256"
+      }
+    ],
+    "name": "LOG_T",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract ConfigurableRightsPoolTest",
         "name": "crp",
         "type": "address"
       },
       {
-        "internalType": "contract ERC20",
+        "internalType": "contract ERC20Test",
         "name": "token",
         "type": "address"
       },
@@ -25,12 +38,12 @@
   {
     "inputs": [
       {
-        "internalType": "contract ConfigurableRightsPool",
+        "internalType": "contract ConfigurableRightsPoolTest",
         "name": "crp",
         "type": "address"
       },
       {
-        "internalType": "contract ERC20",
+        "internalType": "contract ERC20Test",
         "name": "token",
         "type": "address"
       },
@@ -53,7 +66,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract BFactory",
+        "internalType": "contract BFactoryTest",
         "name": "factory",
         "type": "address"
       },
@@ -86,7 +99,7 @@
     "name": "create",
     "outputs": [
       {
-        "internalType": "contract BPool",
+        "internalType": "contract BPoolTest",
         "name": "pool",
         "type": "address"
       }
@@ -97,12 +110,12 @@
   {
     "inputs": [
       {
-        "internalType": "contract CRPFactory",
+        "internalType": "contract CRPFactoryTest",
         "name": "factory",
         "type": "address"
       },
       {
-        "internalType": "contract BFactory",
+        "internalType": "contract BFactoryTest",
         "name": "bFactory",
         "type": "address"
       },
@@ -139,7 +152,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct ConfigurableRightsPool.PoolParams",
+        "internalType": "struct ConfigurableRightsPoolTest.PoolParams",
         "name": "poolParams",
         "type": "tuple"
       },
@@ -161,7 +174,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct ConfigurableRightsPool.CrpParams",
+        "internalType": "struct ConfigurableRightsPoolTest.CrpParams",
         "name": "crpParams",
         "type": "tuple"
       },
@@ -206,7 +219,7 @@
     "name": "createSmartPool",
     "outputs": [
       {
-        "internalType": "contract ConfigurableRightsPool",
+        "internalType": "contract ConfigurableRightsPoolTest",
         "name": "crp",
         "type": "address"
       }
@@ -217,12 +230,12 @@
   {
     "inputs": [
       {
-        "internalType": "contract ConfigurableRightsPool",
+        "internalType": "contract ConfigurableRightsPoolTest",
         "name": "crp",
         "type": "address"
       },
       {
-        "internalType": "contract ERC20",
+        "internalType": "contract ERC20Test",
         "name": "token",
         "type": "address"
       },
@@ -245,7 +258,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract BPool",
+        "internalType": "contract BPoolTest",
         "name": "pool",
         "type": "address"
       }
@@ -258,12 +271,12 @@
   {
     "inputs": [
       {
-        "internalType": "contract ConfigurableRightsPool",
+        "internalType": "contract ConfigurableRightsPoolTest",
         "name": "crp",
         "type": "address"
       },
       {
-        "internalType": "contract ERC20",
+        "internalType": "contract ERC20Test",
         "name": "token",
         "type": "address"
       },
@@ -286,7 +299,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract BPool",
+        "internalType": "contract BPoolTest",
         "name": "pool",
         "type": "address"
       },
@@ -309,7 +322,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ConfigurableRightsPool",
+        "internalType": "contract ConfigurableRightsPoolTest",
         "name": "pool",
         "type": "address"
       },
@@ -337,7 +350,7 @@
         "type": "address"
       },
       {
-        "internalType": "contract ERC20",
+        "internalType": "contract ERC20Test",
         "name": "token",
         "type": "address"
       },
@@ -365,7 +378,7 @@
         "type": "address"
       },
       {
-        "internalType": "contract BPool",
+        "internalType": "contract BPoolTest",
         "name": "poolIn",
         "type": "address"
       },
@@ -380,7 +393,7 @@
         "type": "uint256[]"
       },
       {
-        "internalType": "contract BalancerPool",
+        "internalType": "contract BootstrapNftPool",
         "name": "poolOut",
         "type": "address"
       },
@@ -403,7 +416,7 @@
         "type": "address"
       },
       {
-        "internalType": "contract BPool",
+        "internalType": "contract BPoolTest",
         "name": "poolIn",
         "type": "address"
       },
@@ -418,7 +431,7 @@
         "type": "uint256[]"
       },
       {
-        "internalType": "contract BalancerPool",
+        "internalType": "contract BootstrapNftPool",
         "name": "poolOut",
         "type": "address"
       },
@@ -436,12 +449,12 @@
   {
     "inputs": [
       {
-        "internalType": "contract ConfigurableRightsPool",
+        "internalType": "contract ConfigurableRightsPoolTest",
         "name": "crp",
         "type": "address"
       },
       {
-        "internalType": "contract ERC20",
+        "internalType": "contract ERC20Test",
         "name": "token",
         "type": "address"
       },
@@ -459,7 +472,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ConfigurableRightsPool",
+        "internalType": "contract ConfigurableRightsPoolTest",
         "name": "crp",
         "type": "address"
       },
@@ -477,7 +490,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ConfigurableRightsPool",
+        "internalType": "contract ConfigurableRightsPoolTest",
         "name": "crp",
         "type": "address"
       },
@@ -549,7 +562,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract BPool",
+        "internalType": "contract BPoolTest",
         "name": "pool",
         "type": "address"
       },
@@ -577,7 +590,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ConfigurableRightsPool",
+        "internalType": "contract ConfigurableRightsPoolTest",
         "name": "crp",
         "type": "address"
       },
@@ -605,7 +618,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ConfigurableRightsPool",
+        "internalType": "contract ConfigurableRightsPoolTest",
         "name": "crp",
         "type": "address"
       },

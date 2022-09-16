@@ -8,8 +8,8 @@ pragma experimental ABIEncoderV2;
 
 import "../IBFactory.sol";
 import "../PCToken.sol";
-import "../utils/BalancerReentrancyGuard.sol";
-import "../utils/BalancerOwnable.sol";
+import "../utils/BootstrapNftReentrancyGuard.sol";
+import "../utils/BootstrapNftOwnable.sol";
 import "../ConfigurableRightsPool.sol";
 
 // Interfaces
@@ -20,17 +20,16 @@ import { RightsManager } from ".././libraries/RightsManager.sol";
 // Contracts
 
 /**
- * @author Ampleforth engineering team & Balancer Labs
+ * @author Ampleforth engineering team & BootstrapNft Labs
  *
  * Reference:
- * https://github.com/balancer-labs/configurable-rights-pool/blob/master/contracts/templates/ElasticSupplyPool.sol
  *
  * @title Ampl Elastic Configurable Rights Pool.
  *
- * @dev   Extension of Balancer labs' configurable rights pool (smart-pool).
+ * @dev   Extension of BootstrapNft Labs' configurable rights pool (smart-pool).
  *        Amples are a dynamic supply tokens, supply and individual balances change daily by a Rebase operation.
  *        In constant-function markets, Ampleforth's supply adjustments result in Impermanent Loss (IL)
- *        to liquidity providers. The AmplElasticCRP is an extension of Balancer Lab's
+ *        to liquidity providers. The AmplElasticCRP is an extension of BootstrapNft Lab's
  *        ConfigurableRightsPool which mitigates IL induced by supply adjustments.
  *
  *        It accomplishes this by doing the following mechanism:
@@ -52,7 +51,7 @@ import { RightsManager } from ".././libraries/RightsManager.sol";
  *
  */
 contract ElasticSupplyPool is ConfigurableRightsPool {
-    using BalancerSafeMath for uint;
+    using BootstrapNftSafeMath for uint;
 
     // Event declarations
 
@@ -191,15 +190,15 @@ contract ElasticSupplyPool is ConfigurableRightsPool {
         uint tokenWeightBefore = IBPool(address(bPool)).getDenormalizedWeight(token);
 
         // target token weight = RebaseRatio * previous token weight
-        uint tokenWeightTarget = BalancerSafeMath.bdiv(
-            BalancerSafeMath.bmul(tokenWeightBefore, tokenBalanceAfter),
+        uint tokenWeightTarget = BootstrapNftSafeMath.bdiv(
+            BootstrapNftSafeMath.bmul(tokenWeightBefore, tokenBalanceAfter),
             tokenBalanceBefore
         );
 
         // new token weight = sqrt(current token weight * target token weight)
-        uint tokenWeightAfter = BalancerSafeMath.sqrt(
-            BalancerSafeMath.bdiv(
-                BalancerSafeMath.bmul(tokenWeightBefore, tokenWeightTarget), 1
+        uint tokenWeightAfter = BootstrapNftSafeMath.sqrt(
+            BootstrapNftSafeMath.bdiv(
+                BootstrapNftSafeMath.bmul(tokenWeightBefore, tokenWeightTarget), 1
             )
         );
 
@@ -215,8 +214,8 @@ contract ElasticSupplyPool is ConfigurableRightsPool {
                 uint otherBalance = bPool.getBalance(tokens[i]);
 
                 // other token weight = (new token weight * other token weight before) / target token weight
-                uint otherWeightAfter = BalancerSafeMath.bdiv(
-                    BalancerSafeMath.bmul(tokenWeightAfter, otherWeightBefore), tokenWeightTarget
+                uint otherWeightAfter = BootstrapNftSafeMath.bdiv(
+                    BootstrapNftSafeMath.bmul(tokenWeightAfter, otherWeightBefore), tokenWeightTarget
                 );
 
                 // adjust weight

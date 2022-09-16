@@ -8,8 +8,8 @@ pragma experimental ABIEncoderV2;
 
 import "./IBFactory.sol";
 import "./PCToken.sol";
-import "./utils/BalancerReentrancyGuard.sol";
-import "./utils/BalancerOwnable.sol";
+import "./utils/BootstrapNftReentrancyGuard.sol";
+import "./utils/BootstrapNftOwnable.sol";
 
 // Interfaces
 
@@ -21,9 +21,9 @@ import "./libraries/SafeApprove.sol";
 // Contracts
 
 /**
- * @author Balancer Labs
+ * @author BootstrapNft Labs
  * @title Smart Pool with customizable features
- * @notice PCToken is the "Balancer Smart Pool" token (transferred upon finalization)
+ * @notice PCToken is the "BootstrapNft Smart Pool" token (transferred upon finalization)
  * @dev Rights are defined as follows (index values into the array)
  *      0: canPauseSwapping - can setPublicSwap back to false after turning it on
  *                            by default, it is off on initialization and can only be turned on
@@ -38,14 +38,14 @@ import "./libraries/SafeApprove.sol";
  * To make this explicit, we could write "IBPool(address(bPool)).function()" everywhere,
  *   instead of "bPool.function()".
  */
-contract ConfigurableRightsPool is PCToken, BalancerOwnable, BalancerReentrancyGuard {
-    using BalancerSafeMath for uint;
+contract ConfigurableRightsPool is PCToken, BootstrapNftOwnable, BootstrapNftReentrancyGuard {
+    using BootstrapNftSafeMath for uint;
     using SafeApprove for IERC20;
 
     // Type declarations
 
     struct PoolParams {
-        // Balancer Pool Token (representing shares of the pool)
+        // BootstrapNft Pool Token (representing shares of the pool)
         string poolTokenSymbol;
         string poolTokenName;
         // Tokens inside the Pool
@@ -182,8 +182,8 @@ contract ConfigurableRightsPool is PCToken, BalancerOwnable, BalancerReentrancyG
         // We don't have a pool yet; check now or it will fail later (in order of likelihood to fail)
         // (and be unrecoverable if they don't have permission set to change it)
         // Most likely to fail, so check first
-        require(poolParams.swapFee >= BalancerConstants.MIN_FEE, "ERR_INVALID_SWAP_FEE");
-        require(poolParams.swapFee <= BalancerConstants.MAX_FEE, "ERR_INVALID_SWAP_FEE");
+        require(poolParams.swapFee >= BootstrapNftConstants.MIN_FEE, "ERR_INVALID_SWAP_FEE");
+        require(poolParams.swapFee <= BootstrapNftConstants.MAX_FEE, "ERR_INVALID_SWAP_FEE");
 
         // Arrays must be parallel
         require(poolParams.tokenBalances.length == poolParams.constituentTokens.length, "ERR_START_BALANCES_MISMATCH");
@@ -191,8 +191,8 @@ contract ConfigurableRightsPool is PCToken, BalancerOwnable, BalancerReentrancyG
         // Cannot have too many or too few - technically redundant, since BPool.bind() would fail later
         // But if we don't check now, we could have a useless contract with no way to create a pool
 
-        require(poolParams.constituentTokens.length >= BalancerConstants.MIN_ASSET_LIMIT, "ERR_TOO_FEW_TOKENS");
-        require(poolParams.constituentTokens.length <= BalancerConstants.MAX_ASSET_LIMIT, "ERR_TOO_MANY_TOKENS");
+        require(poolParams.constituentTokens.length >= BootstrapNftConstants.MIN_ASSET_LIMIT, "ERR_TOO_FEW_TOKENS");
+        require(poolParams.constituentTokens.length <= BootstrapNftConstants.MAX_ASSET_LIMIT, "ERR_TOO_MANY_TOKENS");
         // There are further possible checks (e.g., if they use the same token twice), but
         // we can let bind() catch things like that (i.e., not things that might reasonably work)
 
@@ -212,7 +212,7 @@ contract ConfigurableRightsPool is PCToken, BalancerOwnable, BalancerReentrancyG
         // Initializing (unnecessarily) for documentation - 0 means no gradual weight change has been initiated
         gradualUpdate.startBlock = 0;
         // By default, there is no cap (unlimited pool token minting)
-        bspCap = BalancerConstants.MAX_UINT;
+        bspCap = BootstrapNftConstants.MAX_UINT;
     }
 
     // External functions
@@ -730,7 +730,7 @@ contract ConfigurableRightsPool is PCToken, BalancerOwnable, BalancerReentrancyG
                            );
 
         tokenAmountOut = amountOut;
-        uint pAiAfterExitFee = BalancerSafeMath.bsub(poolAmountIn, exitFee);
+        uint pAiAfterExitFee = BootstrapNftSafeMath.bsub(poolAmountIn, exitFee);
 
         emit LogExit(msg.sender, tokenOut, tokenAmountOut);
 
@@ -775,7 +775,7 @@ contract ConfigurableRightsPool is PCToken, BalancerOwnable, BalancerReentrancyG
                           );
 
         poolAmountIn = amountIn;
-        uint pAiAfterExitFee = BalancerSafeMath.bsub(poolAmountIn, exitFee);
+        uint pAiAfterExitFee = BootstrapNftSafeMath.bsub(poolAmountIn, exitFee);
 
         emit LogExit(msg.sender, tokenOut, tokenAmountOut);
 
@@ -880,12 +880,12 @@ contract ConfigurableRightsPool is PCToken, BalancerOwnable, BalancerReentrancyG
     }
 
     /**
-     * @notice Getter for the BalancerSafeMath contract
-     * @dev Convenience function to get the address of the BalancerSafeMath library (so clients can check version)
-     * @return address of the BalancerSafeMath library
+     * @notice Getter for the BootstrapNftSafeMath contract
+     * @dev Convenience function to get the address of the BootstrapNftSafeMath library (so clients can check version)
+     * @return address of the BootstrapNftSafeMath library
     */
-    function getBalancerSafeMathVersion() external pure returns (address) {
-        return address(BalancerSafeMath);
+    function getBootstrapNftSafeMathVersion() external pure returns (address) {
+        return address(BootstrapNftSafeMath);
     }
 
     /**
@@ -939,8 +939,8 @@ contract ConfigurableRightsPool is PCToken, BalancerOwnable, BalancerReentrancyG
      */
     function createPoolInternal(uint initialSupply) internal {
         require(address(bPool) == address(0), "ERR_IS_CREATED");
-        require(initialSupply >= BalancerConstants.MIN_POOL_SUPPLY, "ERR_INIT_SUPPLY_MIN");
-        require(initialSupply <= BalancerConstants.MAX_POOL_SUPPLY, "ERR_INIT_SUPPLY_MAX");
+        require(initialSupply >= BootstrapNftConstants.MIN_POOL_SUPPLY, "ERR_INIT_SUPPLY_MIN");
+        require(initialSupply <= BootstrapNftConstants.MAX_POOL_SUPPLY, "ERR_INIT_SUPPLY_MAX");
 
         // If the controller can change the cap, initialize it to the initial supply
         // Defensive programming, so that there is no gap between creating the pool
@@ -962,7 +962,7 @@ contract ConfigurableRightsPool is PCToken, BalancerOwnable, BalancerReentrancyG
 
         // EXIT_FEE must always be zero, or ConfigurableRightsPool._pushUnderlying will fail
         require(bPool.EXIT_FEE() == 0, "ERR_NONZERO_EXIT_FEE");
-        require(BalancerConstants.EXIT_FEE == 0, "ERR_NONZERO_EXIT_FEE");
+        require(BootstrapNftConstants.EXIT_FEE == 0, "ERR_NONZERO_EXIT_FEE");
 
         for (uint i = 0; i < _initialTokens.length; i++) {
             address t = _initialTokens[i];
@@ -972,7 +972,7 @@ contract ConfigurableRightsPool is PCToken, BalancerOwnable, BalancerReentrancyG
             bool returnValue = IERC20(t).transferFrom(msg.sender, address(this), bal);
             require(returnValue, "ERR_ERC20_FALSE");
 
-            returnValue = IERC20(t).safeApprove(address(bPool), BalancerConstants.MAX_UINT);
+            returnValue = IERC20(t).safeApprove(address(bPool), BootstrapNftConstants.MAX_UINT);
             require(returnValue, "ERR_ERC20_FALSE");
 
             bPool.bind(t, bal, denorm);
@@ -1004,7 +1004,7 @@ contract ConfigurableRightsPool is PCToken, BalancerOwnable, BalancerReentrancyG
 
         bool xfer = IERC20(erc20).transferFrom(from, address(this), amount);
         require(xfer, "ERR_ERC20_FALSE");
-        bPool.rebind(erc20, BalancerSafeMath.badd(tokenBalance, amount), tokenWeight);
+        bPool.rebind(erc20, BootstrapNftSafeMath.badd(tokenBalance, amount), tokenWeight);
     }
 
     // Rebind BPool and push tokens to address
@@ -1013,7 +1013,7 @@ contract ConfigurableRightsPool is PCToken, BalancerOwnable, BalancerReentrancyG
         // Gets current Balance of token i, Bi, and weight of token i, Wi, from BPool.
         uint tokenBalance = bPool.getBalance(erc20);
         uint tokenWeight = bPool.getDenormalizedWeight(erc20);
-        bPool.rebind(erc20, BalancerSafeMath.bsub(tokenBalance, amount), tokenWeight);
+        bPool.rebind(erc20, BootstrapNftSafeMath.bsub(tokenBalance, amount), tokenWeight);
 
         bool xfer = IERC20(erc20).transfer(to, amount);
         require(xfer, "ERR_ERC20_FALSE");

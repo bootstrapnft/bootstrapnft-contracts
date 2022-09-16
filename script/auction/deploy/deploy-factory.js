@@ -15,22 +15,22 @@ async function main() {
 
 
     const BFactory = await hre.ethers.getContractFactory("BFactory");
-    const BalancerSafeMath = await hre.ethers.getContractFactory("BalancerSafeMath");
-    const BalancerSafeMathMock = await hre.ethers.getContractFactory("BalancerSafeMathMock");
+    const BootstrapNftSafeMath = await hre.ethers.getContractFactory("BootstrapNftSafeMath");
+    const BootstrapNftSafeMathMock = await hre.ethers.getContractFactory("BootstrapNftSafeMathMock");
 
     if (network === 'localhost' || network === 'development' || network === 'rinkeby' || network === 'shibuya') {
         const bfactory = await BFactory.deploy();
         await bfactory.deployed();
         console.log("bfactory address:", bfactory.address)
 
-        const balancerSafeMathMock = await BalancerSafeMathMock.deploy();
-        await balancerSafeMathMock.deployed();
-        console.log("balancerSafeMathMock address:", balancerSafeMathMock.address)
+        const bootstrapNftSafeMathMock = await BootstrapNftSafeMathMock.deploy();
+        await bootstrapNftSafeMathMock.deployed();
+        console.log("bootstrapNftSafeMathMock address:", bootstrapNftSafeMathMock.address)
     }
 
-    const balancerSafeMath = await BalancerSafeMath.deploy();
-    await balancerSafeMath.deployed();
-    console.log("balancerSafeMath address:", balancerSafeMath.address)
+    const bootstrapNftSafeMath = await BootstrapNftSafeMath.deploy();
+    await bootstrapNftSafeMath.deployed();
+    console.log("bootstrapNftSafeMath address:", bootstrapNftSafeMath.address)
 
     const rightsManager = await RightsManager.deploy();
     await rightsManager.deployed();
@@ -43,7 +43,7 @@ async function main() {
 
     const CRPFactory = await hre.ethers.getContractFactory("CRPFactory" ,{
         libraries: {
-            BalancerSafeMath: balancerSafeMath.address,
+            BootstrapNftSafeMath: bootstrapNftSafeMath.address,
             RightsManager:rightsManager.address,
             SmartPoolManager:smartPoolManager.address,
         },
@@ -57,7 +57,7 @@ async function main() {
     if (network === 'development' || network === 'rinkeby' || network === 'shibuya') {
         const ESPFactory = await hre.ethers.getContractFactory("ESPFactory",{
             libraries: {
-                BalancerSafeMath: balancerSafeMath.address,
+                BootstrapNftSafeMath: bootstrapNftSafeMath.address,
                 RightsManager:rightsManager.address,
                 SmartPoolManager:smartPoolManager.address,
             },
