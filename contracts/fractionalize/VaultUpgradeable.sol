@@ -49,7 +49,7 @@ contract VaultUpgradeable is
 
     event VaultShutdown(address assetAddress, uint256 numItems, address recipient);
 
-    function __NFTXVault_init(
+    function __Vault_init(
         string memory _name,
         string memory _symbol,
         address _assetAddress,
@@ -170,11 +170,11 @@ contract VaultUpgradeable is
         onlyOwnerIfPaused(2);
         require(
             amount == specificIds.length || enableRandomRedeem,
-            "NFTXVault: Random redeem not enabled"
+            "Vault: Random redeem not enabled"
         );
         require(
             specificIds.length == 0 || enableTargetRedeem,
-            "NFTXVault: Target redeem not enabled"
+            "Vault: Target redeem not enabled"
         );
 
         // We burn all from sender and mint to fee receiver to reduce costs.
@@ -212,7 +212,7 @@ contract VaultUpgradeable is
         if (is1155) {
             for (uint256 i; i < tokenIds.length; ++i) {
                 uint256 amount = amounts[i];
-                require(amount != 0, "NFTXVault: transferring < 1");
+                require(amount != 0, "Vault: transferring < 1");
                 count += amount;
             }
         } else {
@@ -221,11 +221,11 @@ contract VaultUpgradeable is
 
         require(
             count == specificIds.length || enableRandomSwap,
-            "NFTXVault: Random swap disabled"
+            "Vault: Random swap disabled"
         );
         require(
             specificIds.length == 0 || enableTargetSwap,
-            "NFTXVault: Target swap disabled"
+            "Vault: Target swap disabled"
         );
 
         (, , ,uint256 _randomSwapFee, uint256 _targetSwapFee) = vaultFees();
@@ -330,7 +330,7 @@ contract VaultUpgradeable is
             for (uint256 i; i < length; ++i) {
                 uint256 tokenId = tokenIds[i];
                 uint256 amount = amounts[i];
-                require(amount != 0, "NFTXVault: transferring < 1");
+                require(amount != 0, "Vault: transferring < 1");
                 if (quantity1155[tokenId] == 0) {
                     holdings.add(tokenId);
                 }

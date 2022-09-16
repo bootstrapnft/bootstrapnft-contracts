@@ -4,12 +4,12 @@ pragma solidity ^0.8.0;
 
 import "../util/OwnableUpgradeable.sol";
 import "./UniqueEligibility.sol";
-import "./NFTXEligibility.sol";
+import "./Eligibility.sol";
 
 // Maybe use guardian here?
-contract NFTXUniqueEligibility is
+contract NUniqueEligibility is
     OwnableUpgradeable,
-    NFTXEligibility,
+    Eligibility,
     UniqueEligibility
 {
     function name() public pure override virtual returns (string memory) {
@@ -36,7 +36,7 @@ contract NFTXUniqueEligibility is
         uint256[] tokenIds;
     }
 
-    event NFTXEligibilityInit(
+    event EligibilityInit(
         address owner,
         address vault,
         bool negateElig,
@@ -45,7 +45,7 @@ contract NFTXUniqueEligibility is
     );
     event negateEligilityOnRedeemSet(bool negateElig);
 
-    function __NFTXEligibility_init_bytes(bytes memory _configData)
+    function __Eligibility_init_bytes(bytes memory _configData)
         public
         override
         virtual
@@ -54,10 +54,10 @@ contract NFTXUniqueEligibility is
         __Ownable_init();
         (address _owner, address _vault, bool finalize, bool negateElig, uint256[] memory _ids) = abi
             .decode(_configData, (address, address, bool, bool, uint256[]));
-        __NFTXEligibility_init(_owner, _vault, negateElig, finalize, _ids);
+        __Eligibility_init(_owner, _vault, negateElig, finalize, _ids);
     }
 
-    function __NFTXEligibility_init(
+    function __Eligibility_init(
         address _owner,
         address _vault,
         bool negateElig,
@@ -71,7 +71,7 @@ contract NFTXUniqueEligibility is
         vault = _vault;
         negateEligOnRedeem = negateElig;
         _setUniqueEligibilities(tokenIds, true);
-        emit NFTXEligibilityInit(
+        emit EligibilityInit(
             _owner,
             _vault,
             negateElig,

@@ -2,10 +2,10 @@
 
 pragma solidity ^0.8.0;
 
-import "./NFTXEligibility.sol";
+import "./Eligibility.sol";
 
 // Maybe use guardian here?
-contract NFTXRangeEligibility is NFTXEligibility {
+contract RangeEligibility is Eligibility {
     function name() public pure override virtual returns (string memory) {
         return "Range";
     }
@@ -26,22 +26,22 @@ contract NFTXRangeEligibility is NFTXEligibility {
         uint256 rangeEnd;
     }
     event RangeSet(uint256 rangeStart, uint256 rangeEnd);
-    event NFTXEligibilityInit(
+    event EligibilityInit(
         uint256 rangeStart,
         uint256 rangeEnd
     );
 
-    function __NFTXEligibility_init_bytes(bytes memory _configData)
+    function __Eligibility_init_bytes(bytes memory _configData)
         public
         override
         virtual
         initializer
     {
         (uint256 _rangeStart, uint256 _rangeEnd) = abi.decode(_configData, (uint256, uint256));
-        __NFTXEligibility_init(_rangeStart, _rangeEnd);
+        __Eligibility_init(_rangeStart, _rangeEnd);
     }
 
-    function __NFTXEligibility_init(
+    function __Eligibility_init(
         uint256 _rangeStart,
         uint256 _rangeEnd
     ) public initializer {
@@ -49,7 +49,7 @@ contract NFTXRangeEligibility is NFTXEligibility {
         rangeStart = _rangeStart;
         rangeEnd = _rangeEnd;
         emit RangeSet(_rangeStart, _rangeEnd);
-        emit NFTXEligibilityInit(_rangeStart, _rangeEnd);
+        emit EligibilityInit(_rangeStart, _rangeEnd);
     }
 
     function _checkIfEligible(uint256 _tokenId)

@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "./NFTXEligibility.sol";
+import "./Eligibility.sol";
 
 interface KittyCore {
     function ownerOf(uint256 _tokenId) external view returns (address owner);
@@ -23,7 +23,7 @@ interface KittyCore {
         );
 }
 
-contract NFTXGen0KittyEligibility is NFTXEligibility {
+contract Gen0KittyEligibility is Eligibility {
     function name() public pure override virtual returns (string memory) {
         return "Gen0Kitty";
     }
@@ -36,17 +36,17 @@ contract NFTXGen0KittyEligibility is NFTXEligibility {
         return 0x06012c8cf97BEaD5deAe237070F9587f8E7A266d;
     }
 
-    event NFTXEligibilityInit();
+    event EligibilityInit();
 
-    function __NFTXEligibility_init_bytes(
+    function __Eligibility_init_bytes(
         bytes memory /* configData */
     ) public override virtual initializer {
-        __NFTXEligibility_init();
+        __Eligibility_init();
     }
 
     // Parameters here should mirror the config struct.
-    function __NFTXEligibility_init() public initializer {
-        emit NFTXEligibilityInit();
+    function __Eligibility_init() public initializer {
+        emit EligibilityInit();
     }
 
     function _checkIfEligible(uint256 _tokenId)

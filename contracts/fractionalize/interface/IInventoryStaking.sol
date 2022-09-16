@@ -5,12 +5,12 @@ pragma solidity ^0.8.0;
 import "./IVaultFactory.sol";
 
 interface IInventoryStaking {
-    function nftxVaultFactory() external view returns (IVaultFactory);
+    function vaultFactory() external view returns (IVaultFactory);
     function vaultXToken(uint256 vaultId) external view returns (address);
     function xTokenAddr(address baseToken) external view returns (address);
     function xTokenShareValue(uint256 vaultId) external view returns (uint256);
 
-    function __NFTXInventoryStaking_init(address nftxFactory) external;
+    function __InventoryStaking_init(address vaultFactory) external;
     
     function deployXTokenForVault(uint256 vaultId) external;
     function receiveRewards(uint256 vaultId, uint256 amount) external returns (bool);

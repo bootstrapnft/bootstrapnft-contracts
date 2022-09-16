@@ -14,9 +14,9 @@ interface ClaimToken {
 
 // Author: 0xKiwi. 
 
-contract NFTXFlashSwipe is IERC3156FlashBorrowerUpgradeable {
+contract FlashSwipe is IERC3156FlashBorrowerUpgradeable {
   uint256 constant BASE = 1e18;
-  IVaultFactory public nftxFactory;
+  IVaultFactory public vaultFactory;
   
   ClaimToken NCT = ClaimToken(0x8A9c4dfe8b9D8962B31e4e16F8321C44d48e246E);
   ClaimToken WET = ClaimToken(0x76280AF9D18a868a0aF3dcA95b57DDE816c1aaf2);
@@ -47,7 +47,7 @@ contract NFTXFlashSwipe is IERC3156FlashBorrowerUpgradeable {
   function flashSwipe(address operator, uint256 vaultId, uint256 count, uint256[] calldata specificIds, Type swipeType) public {
     // Small protection to protect from frontrunning.
     require(operator == msg.sender, "No frontrun pls");
-    address vault = nftxFactory.vault(vaultId);
+    address vault = vaultFactory.vault(vaultId);
     // Calculate and pull mint/redeem fees.
     uint256 targetRedeemFee = IVault(vault).targetRedeemFee() * specificIds.length;
     uint256 mintFee = IVault(vault).mintFee() * count;

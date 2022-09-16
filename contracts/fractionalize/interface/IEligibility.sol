@@ -22,7 +22,7 @@ interface IEligibility {
     function checkIsEligible(uint256 tokenId) external view returns (bool);
 
     // Write functions.
-    function __NFTXEligibility_init_bytes(bytes calldata configData) external;
+    function __Eligibility_init_bytes(bytes calldata configData) external;
     function beforeMintHook(uint256[] calldata tokenIds) external;
     function afterMintHook(uint256[] calldata tokenIds) external;
     function beforeRedeemHook(uint256[] calldata tokenIds) external;

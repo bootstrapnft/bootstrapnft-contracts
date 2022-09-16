@@ -19,7 +19,7 @@ import "./token/TimelockRewardDistributionTokenImpl.sol";
 contract LPStaking is PausableUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
-    IVaultFactory public nftxVaultFactory;
+    IVaultFactory public vaultFactory;
     IRewardDistributionToken public rewardDistTokenImpl;
     StakingTokenProvider public stakingTokenProvider;
 
@@ -35,7 +35,7 @@ contract LPStaking is PausableUpgradeable {
 
     TimelockRewardDistributionTokenImpl public newTimelockRewardDistTokenImpl;
 
-    function __NFTXLPStaking__init(address _stakingTokenProvider) external initializer {
+    function __LPStaking__init(address _stakingTokenProvider) external initializer {
         __Ownable_init();
         require(_stakingTokenProvider != address(0), "Provider != address(0)");
         require(address(newTimelockRewardDistTokenImpl) == address(0), "Already assigned");
@@ -45,13 +45,13 @@ contract LPStaking is PausableUpgradeable {
     }
 
     modifier onlyAdmin() {
-        require(msg.sender == owner() || msg.sender == nftxVaultFactory.feeDistributor(), "LPStaking: Not authorized");
+        require(msg.sender == owner() || msg.sender == vaultFactory.feeDistributor(), "LPStaking: Not authorized");
         _;
     }
 
-    function setNFTXVaultFactory(address newFactory) external onlyOwner {
-        require(address(nftxVaultFactory) == address(0), "nftxVaultFactory is immutable");
-        nftxVaultFactory = IVaultFactory(newFactory);
+    function setVaultFactory(address newFactory) external onlyOwner {
+        require(address(vaultFactory) == address(0), "vaultFactory is immutable");
+        vaultFactory = IVaultFactory(newFactory);
     }
 
     function setStakingTokenProvider(address newProvider) external onlyOwner {
@@ -60,9 +60,9 @@ contract LPStaking is PausableUpgradeable {
     }
 
     function addPoolForVault(uint256 vaultId) external onlyAdmin {
-        require(address(nftxVaultFactory) != address(0), "LPStaking: Factory not set");
+        require(address(vaultFactory) != address(0), "LPStaking: Factory not set");
         require(vaultStakingInfo[vaultId].stakingToken == address(0), "LPStaking: Pool already exists");
-        address _rewardToken = nftxVaultFactory.vault(vaultId);
+        address _rewardToken = vaultFactory.vault(vaultId);
         address _stakingToken = stakingTokenProvider.stakingTokenForVaultToken(_rewardToken);
         StakingPool memory pool = StakingPool(_stakingToken, _rewardToken);
         vaultStakingInfo[vaultId] = pool;
@@ -140,7 +140,7 @@ contract LPStaking is PausableUpgradeable {
 
     function timelockDepositFor(uint256 vaultId, address account, uint256 amount, uint256 timelockLength) external {
         require(timelockLength < 2592000, "Timelock too long");
-        require(nftxVaultFactory.excludedFromFees(msg.sender), "Not zap");
+        require(vaultFactory.excludedFromFees(msg.sender), "Not zap");
         onlyOwnerIfPaused(10);
         // Check the pool in case its been updated.
         updatePoolForVault(vaultId);

@@ -41,7 +41,7 @@ contract VaultFactoryUpgradeable is
     uint64 public override factoryRandomSwapFee;
     uint64 public override factoryTargetSwapFee;
 
-    function __NFTXVaultFactory_init(address _vaultImpl, address _feeDistributor) public override initializer {
+    function __VaultFactory_init(address _vaultImpl, address _feeDistributor) public override initializer {
         __Pausable_init();
         // We use a beacon proxy so that every child contract follows the same implementation code.
         __UpgradeableBeacon__init(_vaultImpl);
@@ -57,8 +57,8 @@ contract VaultFactoryUpgradeable is
         bool allowAllItems
     ) external virtual override returns (uint256) {
         onlyOwnerIfPaused(0);
-        require(feeDistributor != address(0), "NFTX: Fee receiver unset");
-        require(childImplementation() != address(0), "NFTX: Vault implementation unset");
+        require(feeDistributor != address(0), "VaultFactory: Fee receiver unset");
+        require(childImplementation() != address(0), "VaultFactory: Vault implementation unset");
         address vaultAddr = deployVault(name, symbol, _assetAddress, is1155, allowAllItems);
         uint256 _vaultId = vaults.length;
         _vaultsForAsset[_assetAddress].push(vaultAddr);
@@ -182,7 +182,7 @@ contract VaultFactoryUpgradeable is
         bool allowAllItems
     ) internal returns (address) {
         address newBeaconProxy = address(new BeaconProxy(address(this), ""));
-        VaultUpgradeable(newBeaconProxy).__NFTXVault_init(name, symbol, _assetAddress, is1155, allowAllItems);
+        VaultUpgradeable(newBeaconProxy).__Vault_init(name, symbol, _assetAddress, is1155, allowAllItems);
         // Manager for configuration.
         VaultUpgradeable(newBeaconProxy).setManager(msg.sender);
         // Owner for administrative functions.

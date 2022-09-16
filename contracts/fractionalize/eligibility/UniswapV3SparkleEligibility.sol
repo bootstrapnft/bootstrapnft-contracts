@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import "./NFTXEligibility.sol";
+import "./Eligibility.sol";
 import "../util/OwnableUpgradeable.sol";
 
 /// @title BitMath
@@ -85,7 +85,7 @@ interface INonfungiblePositionManager {
     function factory() external view returns (address);
 }
 
-contract UniswapV3SparkleEligibility is NFTXEligibility, OwnableUpgradeable {
+contract UniswapV3SparkleEligibility is Eligibility, OwnableUpgradeable {
     address public constant positionManager = 0xC36442b4a4522E871399CD717aBDD847Ab11FE88;
     bytes32 internal constant POOL_INIT_CODE_HASH = 0xe34f199b19b2b4f47f68442619d555527d244f78a3297ea89325f843f87b8b54;
 
@@ -111,19 +111,19 @@ contract UniswapV3SparkleEligibility is NFTXEligibility, OwnableUpgradeable {
         return 0xC36442b4a4522E871399CD717aBDD847Ab11FE88;
     }
 
-    event NFTXEligibilityInit();
+    event EligibilityInit();
     event PoolsAdded(address[] poolsAdded);
 
-    function __NFTXEligibility_init_bytes(bytes memory configData) public override virtual initializer {
+    function __Eligibility_init_bytes(bytes memory configData) public override virtual initializer {
         (address[] memory _validPools, address _owner) = abi.decode(configData, (address[], address));
-        __NFTXEligibility_init(_validPools, _owner);
+        __Eligibility_init(_validPools, _owner);
     }
 
-    function __NFTXEligibility_init(address[] memory _validPools, address _owner) public initializer {
+    function __Eligibility_init(address[] memory _validPools, address _owner) public initializer {
         __Ownable_init();
         isInitialized = true;
         addValidPools(_validPools);
-        emit NFTXEligibilityInit();
+        emit EligibilityInit();
 
         transferOwnership(_owner);
     }

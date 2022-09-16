@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8.0;
 
-import "./NFTXUniqueEligibility.sol";
+import "./NUniqueEligibility.sol";
 
-contract NFTXDenyEligibility is NFTXUniqueEligibility {
+contract DenyEligibility is NUniqueEligibility {
 
     function name() public pure override virtual returns (string memory) {    
         return "Deny";

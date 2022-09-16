@@ -148,10 +148,10 @@ abstract contract Ownable {
     }
 }
 
-contract PalmNFTXStakingZap is Ownable, ReentrancyGuard, ERC721HolderUpgradeable, ERC1155HolderUpgradeable {
+contract PalmStakingZap is Ownable, ReentrancyGuard, ERC721HolderUpgradeable, ERC1155HolderUpgradeable {
   IERC20Upgradeable public immutable pairedToken; 
   ILPStaking public immutable lpStaking;
-  IVaultFactory public immutable nftxFactory;
+  IVaultFactory public immutable vaultFactory;
   IUniswapV2Router01 public immutable sushiRouter;
 
   uint256 public lockTime = 48 hours; 
@@ -159,9 +159,9 @@ contract PalmNFTXStakingZap is Ownable, ReentrancyGuard, ERC721HolderUpgradeable
 
   event UserStaked(uint256 vaultId, uint256 count, uint256 lpBalance, uint256 timelockUntil, address sender);
 
-  constructor(address _nftxFactory, address _sushiRouter, address _pairedToken) Ownable() ReentrancyGuard() {
-    nftxFactory = IVaultFactory(_nftxFactory);
-    lpStaking = ILPStaking(IFeeDistributor(IVaultFactory(_nftxFactory).feeDistributor()).lpStaking());
+  constructor(address _vaultFactory, address _sushiRouter, address _pairedToken) Ownable() ReentrancyGuard() {
+    vaultFactory = IVaultFactory(_vaultFactory);
+    lpStaking = ILPStaking(IFeeDistributor(IVaultFactory(_vaultFactory).feeDistributor()).lpStaking());
     sushiRouter = IUniswapV2Router01(_sushiRouter);
     pairedToken = IERC20Upgradeable(_pairedToken);
     IERC20Upgradeable(address(_pairedToken)).approve(_sushiRouter, type(uint256).max);
@@ -248,10 +248,10 @@ contract PalmNFTXStakingZap is Ownable, ReentrancyGuard, ERC721HolderUpgradeable
     uint256 wethIn,
     address to
   ) internal returns (uint256, uint256, uint256) {
-    address vault = nftxFactory.vault(vaultId);
-    require(vault != address(0), "NFTXZap: Vault does not exist");
+    address vault = vaultFactory.vault(vaultId);
+    require(vault != address(0), "PlamZap: Vault does not exist");
 
-    // Transfer tokens to zap and mint to NFTX.
+    // Transfer tokens to zap and mint to N.
     address assetAddress = IVault(vault).assetAddress();
     for (uint256 i; i < ids.length; i++) {
       transferFromERC721(assetAddress, ids[i]);
@@ -272,10 +272,10 @@ contract PalmNFTXStakingZap is Ownable, ReentrancyGuard, ERC721HolderUpgradeable
     uint256 wethIn,
     address to
   ) internal returns (uint256, uint256, uint256) {
-    address vault = nftxFactory.vault(vaultId);
-    require(vault != address(0), "NFTXZap: Vault does not exist");
+    address vault = vaultFactory.vault(vaultId);
+    require(vault != address(0), "PlamZap: Vault does not exist");
 
-    // Transfer tokens to zap and mint to NFTX.
+    // Transfer tokens to zap and mint to N.
     address assetAddress = IVault(vault).assetAddress();
     IERC1155Upgradeable(assetAddress).safeBatchTransferFrom(msg.sender, address(this), ids, amounts, "");
     IERC1155Upgradeable(assetAddress).setApprovalForAll(vault, true);

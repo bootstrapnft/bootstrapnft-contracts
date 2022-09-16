@@ -18,7 +18,7 @@ contract SimpleFeeDistributor is ISimpleFeeDistributor, ReentrancyGuardUpgradeab
 
   bool public distributionPaused;
 
-  address public override nftxVaultFactory;
+  address public override vaultFactory;
   address public override lpStaking;
   address public override treasury;
 
@@ -31,7 +31,7 @@ contract SimpleFeeDistributor is ISimpleFeeDistributor, ReentrancyGuardUpgradeab
   event UpdateTreasuryAddress(address newTreasury);
   event UpdateLPStakingAddress(address newLPStaking);
   event UpdateInventoryStakingAddress(address newInventoryStaking);
-  event UpdateNFTXVaultFactory(address factory);
+  event UpdateVaultFactory(address factory);
   event PauseDistribution(bool paused); 
 
   event AddFeeReceiver(address receiver, uint256 allocPoint);
@@ -48,8 +48,8 @@ contract SimpleFeeDistributor is ISimpleFeeDistributor, ReentrancyGuardUpgradeab
   }
 
   function distribute(uint256 vaultId) external override virtual nonReentrant {
-    require(nftxVaultFactory != address(0));
-    address _vault = IVaultFactory(nftxVaultFactory).vault(vaultId);
+    require(vaultFactory != address(0));
+    address _vault = IVaultFactory(vaultFactory).vault(vaultId);
 
     uint256 tokenBalance = IERC20Upgradeable(_vault).balanceOf(address(this));
 
@@ -86,7 +86,7 @@ contract SimpleFeeDistributor is ISimpleFeeDistributor, ReentrancyGuardUpgradeab
   }
 
   function initializeVaultReceivers(uint256 _vaultId) external override {
-    require(msg.sender == nftxVaultFactory, "FeeReceiver: not factory");
+    require(msg.sender == vaultFactory, "FeeReceiver: not factory");
     ILPStaking(lpStaking).addPoolForVault(_vaultId);
     if (inventoryStaking != address(0))
       IInventoryStaking(inventoryStaking).deployXTokenForVault(_vaultId);
@@ -136,10 +136,10 @@ contract SimpleFeeDistributor is ISimpleFeeDistributor, ReentrancyGuardUpgradeab
     emit UpdateInventoryStakingAddress(_inventoryStaking);
   }
 
-  function setNFTXVaultFactory(address _factory) external override onlyOwner {
-    require(address(nftxVaultFactory) == address(0), "nftxVaultFactory is immutable");
-    nftxVaultFactory = _factory;
-    emit UpdateNFTXVaultFactory(_factory);
+  function setVaultFactory(address _factory) external override onlyOwner {
+    require(address(vaultFactory) == address(0), "vaultFactory is immutable");
+    vaultFactory = _factory;
+    emit UpdateVaultFactory(_factory);
   }
 
   function pauseFeeDistribution(bool _pause) external onlyOwner {

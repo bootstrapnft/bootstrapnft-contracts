@@ -10,7 +10,7 @@ interface ISimpleFeeDistributor {
     bool isContract;
   }
 
-  function nftxVaultFactory() external view returns (address);
+  function vaultFactory() external view returns (address);
   function lpStaking() external view returns (address);
   function inventoryStaking() external view returns (address);
   function treasury() external view returns (address);
@@ -31,5 +31,5 @@ interface ISimpleFeeDistributor {
   function setTreasuryAddress(address _treasury) external;
   function setLPStakingAddress(address _lpStaking) external;
   function setInventoryStakingAddress(address _inventoryStaking) external;
-  function setNFTXVaultFactory(address _factory) external;
+  function setVaultFactory(address _factory) external;
 } 

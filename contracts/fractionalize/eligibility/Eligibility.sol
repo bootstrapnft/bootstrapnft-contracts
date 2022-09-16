@@ -6,12 +6,12 @@ import "../proxy/Initializable.sol";
 import "../interface/IEligibility.sol";
 
 // This is a contract meant to be inherited and overriden to implement eligibility modules. 
-abstract contract NFTXEligibility is IEligibility, Initializable {
+abstract contract Eligibility is IEligibility, Initializable {
   function name() public pure override virtual returns (string memory);
   function finalized() public view override virtual returns (bool);
   function targetAsset() public pure override virtual returns (address);
   
-  function __NFTXEligibility_init_bytes(bytes memory initData) public override virtual;
+  function __Eligibility_init_bytes(bytes memory initData) public override virtual;
 
   function checkIsEligible(uint256 tokenId) external view override virtual returns (bool) {
       return _checkIfEligible(tokenId);

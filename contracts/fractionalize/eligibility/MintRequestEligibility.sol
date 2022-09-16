@@ -10,17 +10,17 @@ import "../token/ERC1155HolderUpgradeable.sol";
 import "../util/PausableUpgradeable.sol";
 import "../util/SafeMathUpgradeable.sol";
 import "./UniqueEligibility.sol";
-import "./NFTXEligibility.sol";
+import "./Eligibility.sol";
 
 // onlyOwnerIfPaused only 0.
 // 0: requestMint
 // 0: approveMintRequests
 // 0: setUniqueEligibilities
 
-contract NFTXMintRequestEligibility is
+contract MintRequestEligibility is
     PausableUpgradeable,
     UniqueEligibility,
-    NFTXEligibility,
+    Eligibility,
     ERC721HolderUpgradeable,
     ERC1155HolderUpgradeable
 {
@@ -54,14 +54,14 @@ contract NFTXMintRequestEligibility is
         uint256[] tokenIds;
     }
 
-    event NFTXEligibilityInit(address owner, uint256[] tokenIds);
+    event EligibilityInit(address owner, uint256[] tokenIds);
 
     event AllowTrustedApprovalsSet(bool allow);
 
     event Request(address sender, uint256[] nftIds, uint256[] amounts);
     event Approve(uint256[] nftIds);
 
-    function __NFTXEligibility_init_bytes(bytes memory _configData)
+    function __Eligibility_init_bytes(bytes memory _configData)
         public
         override
         virtual
@@ -69,10 +69,10 @@ contract NFTXMintRequestEligibility is
     {
         (address _owner, address _vault, bool _negateElig, uint256[] memory _ids) = abi
             .decode(_configData, (address, address, bool, uint256[]));
-        __NFTXEligibility_init(_owner, _vault, _negateElig, _ids);
+        __Eligibility_init(_owner, _vault, _negateElig, _ids);
     }
 
-    function __NFTXEligibility_init(
+    function __Eligibility_init(
         address _owner,
         address vaultAddress,
         bool _negateEligOnRedeem,
@@ -92,7 +92,7 @@ contract NFTXMintRequestEligibility is
             address(vault),
             true
         );
-        emit NFTXEligibilityInit(_owner, tokenIds);
+        emit EligibilityInit(_owner, tokenIds);
     }
 
     function finalizeEligibility() external virtual onlyOwner {
@@ -208,7 +208,7 @@ contract NFTXMintRequestEligibility is
         for (uint256 i; i < tokenIds.length; i++) {
             uint256 tokenId = tokenIds[i];
             uint256 amount = mintRequests[msg.sender][tokenId];
-            require(amount > 0, "NFTXVault: nothing to reclaim");
+            require(amount > 0, "Vault: nothing to reclaim");
             require(!approvedMints[msg.sender][tokenId], "Eligibility: cannot be approved");
             mintRequests[msg.sender][tokenId] = 0;
             approvedMints[msg.sender][tokenId] = false;

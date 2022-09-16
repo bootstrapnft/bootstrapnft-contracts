@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "./NFTXEligibility.sol";
+import "./Eligibility.sol";
 
 interface Avastar {
     enum Generation {ONE, TWO, THREE, FOUR, FIVE}
@@ -20,7 +20,7 @@ interface Avastar {
     );
 }
 
-contract NFTXAvastarRank60Eligibility is NFTXEligibility {
+contract AvastarRank60Eligibility is Eligibility {
 
     function name() public pure override virtual returns (string memory) {    
         return "AvastarRank60";
@@ -34,17 +34,17 @@ contract NFTXAvastarRank60Eligibility is NFTXEligibility {
         return 0xF3E778F839934fC819cFA1040AabaCeCBA01e049;
    }
 
-    event NFTXEligibilityInit();
+    event EligibilityInit();
 
-    function __NFTXEligibility_init_bytes(
+    function __Eligibility_init_bytes(
         bytes memory /* configData */
     ) public override virtual initializer {
-        __NFTXEligibility_init();
+        __Eligibility_init();
     }
 
     // Parameters here should mirror the config struct. 
-    function __NFTXEligibility_init() public initializer {
-        emit NFTXEligibilityInit();
+    function __Eligibility_init() public initializer {
+        emit EligibilityInit();
     }
 
     function _checkIfEligible(

@@ -10,7 +10,7 @@ interface IFeeDistributor {
     bool isContract;
   }
 
-  function nftxVaultFactory() external returns (address);
+  function vaultFactory() external returns (address);
   function lpStaking() external returns (address);
   function treasury() external returns (address);
   function defaultTreasuryAlloc() external returns (uint256);
@@ -45,6 +45,6 @@ interface IFeeDistributor {
   function setDefaultTreasuryAlloc(uint256 _allocPoint) external;
   function setSpecificTreasuryAlloc(uint256 _vaultId, uint256 _allocPoint) external;
   function setLPStakingAddress(address _lpStaking) external;
-  function setNFTXVaultFactory(address _factory) external;
+  function setVaultFactory(address _factory) external;
   function setDefaultLPAlloc(uint256 _allocPoint) external;
 } 

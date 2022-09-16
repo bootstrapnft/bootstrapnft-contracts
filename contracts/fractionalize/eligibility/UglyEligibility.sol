@@ -2,14 +2,14 @@
 
 pragma solidity ^0.8.0;
 
-import "./NFTXEligibility.sol";
+import "./Eligibility.sol";
 
 interface IPolymorph {
     function geneOf(uint256 tokenId) external view returns (uint256 gene);
     function lastTokenId() external view returns (uint256 tokenId);
 }
 
-contract NFTXUglyEligibility is NFTXEligibility {
+contract UglyEligibility is Eligibility {
     function name() public pure override virtual returns (string memory) {
         return "Ugly";
     }
@@ -22,17 +22,17 @@ contract NFTXUglyEligibility is NFTXEligibility {
         return 0x06012c8cf97BEaD5deAe237070F9587f8E7A266d;
     }
 
-    event NFTXEligibilityInit();
+    event EligibilityInit();
 
-    function __NFTXEligibility_init_bytes(
+    function __Eligibility_init_bytes(
         bytes memory /* configData */
     ) public override virtual initializer {
-        __NFTXEligibility_init();
+        __Eligibility_init();
     }
 
     // Parameters here should mirror the config struct.
-    function __NFTXEligibility_init() public initializer {
-        emit NFTXEligibilityInit();
+    function __Eligibility_init() public initializer {
+        emit EligibilityInit();
     }
 
     function _checkIfEligible(uint256 _tokenId)

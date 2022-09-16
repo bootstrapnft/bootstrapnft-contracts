@@ -29,7 +29,7 @@ interface IVaultFactory is IBeacon {
   event UpdateFactoryFees(uint256 mintFee, uint256 randomRedeemFee, uint256 targetRedeemFee, uint256 randomSwapFee, uint256 targetSwapFee);
 
   // Write functions.
-  function __NFTXVaultFactory_init(address _vaultImpl, address _feeDistributor) external;
+  function __VaultFactory_init(address _vaultImpl, address _feeDistributor) external;
   function createVault(
       string calldata name,
       string calldata symbol,

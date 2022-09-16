@@ -56,7 +56,7 @@ interface IVault is IERC20Upgradeable {
         address to
     );
 
-    function __NFTXVault_init(
+    function __Vault_init(
         string calldata _name,
         string calldata _symbol,
         address _assetAddress,

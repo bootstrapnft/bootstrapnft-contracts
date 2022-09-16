@@ -3,9 +3,9 @@
 pragma solidity ^0.8.0;
 
 import "./UniqueEligibility.sol";
-import "./NFTXEligibility.sol";
+import "./Eligibility.sol";
 
-contract NFTXListEligibility is NFTXEligibility, UniqueEligibility {
+contract ListEligibility is Eligibility, UniqueEligibility {
     function name() public pure override virtual returns (string memory) {    
         return "List";
     }
@@ -22,20 +22,20 @@ contract NFTXListEligibility is NFTXEligibility, UniqueEligibility {
         uint256[] tokenIds;
     }
 
-    event NFTXEligibilityInit(uint256[] tokenIds);
+    event EligibilityInit(uint256[] tokenIds);
 
-    function __NFTXEligibility_init_bytes(
+    function __Eligibility_init_bytes(
         bytes memory _configData
     ) public override virtual initializer {
         (uint256[] memory _ids) = abi.decode(_configData, (uint256[]));
-        __NFTXEligibility_init(_ids);
+        __Eligibility_init(_ids);
     }
 
-    function __NFTXEligibility_init(
+    function __Eligibility_init(
         uint256[] memory tokenIds
     ) public initializer {
         _setUniqueEligibilities(tokenIds, true);
-        emit NFTXEligibilityInit(tokenIds);
+        emit EligibilityInit(tokenIds);
     }
 
     function _checkIfEligible(
