@@ -353,7 +353,7 @@ describe("Test Auction", function () {
             expect(await bpool.getBalance(usdc.address)).to.equal(ethers.utils.parseUnits("200000000000000000001", 0).toString())
             expect(await bpool.getDenormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("22.22").toString())
             expect(await bpool.getDenormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("22.22").toString())
-            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("0.5").toString())
+            expect(await bpool.getNormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("0.5").toString())
             expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("0.5").toString())
 
             let testMumuTokenAfterBal = await testMumuToken.balanceOf(primary.address)
@@ -387,7 +387,7 @@ describe("Test Auction", function () {
             expect(await bpool.getBalance(usdc.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
             expect(await bpool.getDenormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("22.22").toString())
             expect(await bpool.getDenormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("22.22").toString())
-            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("0.5").toString())
+            expect(await bpool.getNormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("0.5").toString())
             expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("0.5").toString())
 
             let testMumuTokenAfterBal = await testMumuToken.balanceOf(primary.address)
@@ -426,7 +426,7 @@ describe("Test Auction", function () {
             expect(await bpool.getBalance(usdc.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
             expect(await bpool.getDenormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("22.22").toString())
             expect(await bpool.getDenormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("22.22").toString())
-            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("0.5").toString())
+            expect(await bpool.getNormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("0.5").toString())
             expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("0.5").toString())
 
             let testMumuTokenAfterBal = await testMumuToken.balanceOf(primary.address)
@@ -462,7 +462,7 @@ describe("Test Auction", function () {
             expect(await bpool.getBalance(usdc.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
             expect(await bpool.getDenormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("22.22").toString())
             expect(await bpool.getDenormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("22.22").toString())
-            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("0.5").toString())
+            expect(await bpool.getNormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("0.5").toString())
             expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("0.5").toString())
 
             let testMumuTokenAfterBal = await testMumuToken.balanceOf(primary.address)
@@ -527,7 +527,7 @@ describe("Test Auction", function () {
                 crpPoolAddress,
                 testMumuToken.address,
                 ethers.utils.parseEther("27"),
-                ethers.utils.parseUnits("21512158589777733264",0)
+                ethers.utils.parseUnits("21512158589777733264", 0)
             ]);
 
             let increaseWeightTx = await dsProxy.connect(primary).execute(bActions.address, increaseWeightData)
@@ -666,14 +666,13 @@ describe("Test Auction", function () {
             expect(crpAfterBalance).to.equal(ethers.utils.parseUnits("99999999999999999970", 0).toString())
 
 
-
             const newWeights2 = [
                 ethers.utils.parseEther("10.22").toString(),
                 ethers.utils.parseEther("10.22").toString()
             ];
-             currentBlockNumber = await ethers.provider.getBlockNumber()
-             startBlockNumber = currentBlockNumber + 10
-             endBlockNumber = startBlockNumber + 20
+            currentBlockNumber = await ethers.provider.getBlockNumber()
+            startBlockNumber = currentBlockNumber + 10
+            endBlockNumber = startBlockNumber + 20
 
             const increaseWeightData2 = bactionIfac.encodeFunctionData("updateWeightsGradually", [
                 crpPoolAddress,
@@ -697,13 +696,13 @@ describe("Test Auction", function () {
             expect(await bpool.getNormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseUnits("500000000000000000", 0).toString())
             expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseUnits("500000000000000000", 0).toString())
 
-             testMumuTokenAfterBal = await testMumuToken.balanceOf(primary.address)
-             usdcTokenAfterBal = await usdc.balanceOf(primary.address)
+            testMumuTokenAfterBal = await testMumuToken.balanceOf(primary.address)
+            usdcTokenAfterBal = await usdc.balanceOf(primary.address)
 
             expect(testMumuTokenAfterBal.sub(testMumuTokenBeforeBal)).to.equal(ethers.utils.parseUnits("0", 0).toString())
             expect(usdcTokenAfterBal.sub(usdcTokenBeforeBal)).to.equal(ethers.utils.parseUnits("0", 0).toString())
 
-             crpAfterBalance = await crp.balanceOf(primary.address)
+            crpAfterBalance = await crp.balanceOf(primary.address)
             expect(crpAfterBalance).to.equal(ethers.utils.parseUnits("99999999999999999970", 0).toString())
 
 
@@ -962,24 +961,37 @@ describe("Test Auction", function () {
                 .toString())
 
 
-            testMUMUTokenBalance = await bpool.getBalance(testMumuToken.address)
-            testLALATokenBalance = await bpool.getBalance(testLalalaToken.address)
-            usdcTokenBalance = await bpool.getBalance(usdc.address)
+            expect(await bpool.getBalance(testLalalaToken.address)).to.equal(ethers.utils.parseUnits("200000000000000000001", 0).toString())
+            expect(await bpool.getBalance(testMumuToken.address)).to.equal(ethers.utils.parseUnits("200000000000000000001", 0).toString())
+            expect(await bpool.getBalance(usdc.address)).to.equal(ethers.utils.parseUnits("200000000000000000001", 0).toString())
+            expect(await bpool.getDenormalizedWeight(testLalalaToken.address)).to.equal(ethers.utils.parseEther("11.11").toString())
+            expect(await bpool.getDenormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("11.11").toString())
+            expect(await bpool.getDenormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("11.11").toString())
+            expect(await bpool.getNormalizedWeight(testLalalaToken.address)).to.equal(ethers.utils.parseEther("0.333333333333333333").toString())
+            expect(await bpool.getNormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("0.333333333333333333").toString())
+            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("0.333333333333333333").toString())
 
-            console.log("testMUMUTokenBalance", testMUMUTokenBalance)
-            console.log("testLALATokenBalance", testLALATokenBalance)
-            console.log("usdcTokenBalance", usdcTokenBalance)
+            let testLalaTokenAfterBal = await testLalalaToken.balanceOf(primary.address)
+            let testMumuTokenAfterBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenAfterBal = await usdc.balanceOf(primary.address)
+
+            expect(testLalaTokenBeforeBal.sub(testLalaTokenAfterBal)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(testMumuTokenBeforeBal.sub(testMumuTokenAfterBal)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(usdcTokenBeforeBal.sub(usdcTokenAfterBal)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+
+            let crpAfterBalance = await crp.balanceOf(primary.address)
+            expect(crpAfterBalance).to.equal(ethers.utils.parseEther("200").toString())
         })
         it("remove liquidity multi assets", async () => {
 
-            let bpool = await BPool.attach(poolAddress)
-            let testMUMUTokenBalance = await bpool.getBalance(testMumuToken.address)
-            let testLALATokenBalance = await bpool.getBalance(testLalalaToken.address)
-            let usdcTokenBalance = await bpool.getBalance(usdc.address)
 
-            console.log("testMUMUTokenBalance", testMUMUTokenBalance)
-            console.log("testLALATokenBalance", testLALATokenBalance)
-            console.log("usdcTokenBalance", usdcTokenBalance)
+            let testLalaTokenBeforeBal = await testLalalaToken.balanceOf(primary.address)
+            let testMumuTokenBeforeBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenBeforeBal = await usdc.balanceOf(primary.address)
+
+
+            let bpool = await BPool.attach(poolAddress)
+
 
             let crp = await ConfigurableRightsPool.attach(logCaller)
 
@@ -993,15 +1005,32 @@ describe("Test Auction", function () {
                 .parseEther("100")
                 .toString())
 
-            testMUMUTokenBalance = await bpool.getBalance(testMumuToken.address)
-            testLALATokenBalance = await bpool.getBalance(testLalalaToken.address)
-            usdcTokenBalance = await bpool.getBalance(usdc.address)
+            expect(await bpool.getBalance(testLalalaToken.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(await bpool.getBalance(testMumuToken.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(await bpool.getBalance(usdc.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(await bpool.getDenormalizedWeight(testLalalaToken.address)).to.equal(ethers.utils.parseEther("11.11").toString())
+            expect(await bpool.getDenormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("11.11").toString())
+            expect(await bpool.getDenormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("11.11").toString())
+            expect(await bpool.getNormalizedWeight(testLalalaToken.address)).to.equal(ethers.utils.parseEther("0.333333333333333333").toString())
+            expect(await bpool.getNormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("0.333333333333333333").toString())
+            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("0.333333333333333333").toString())
 
-            console.log("testMUMUTokenBalance", testMUMUTokenBalance)
-            console.log("testLALATokenBalance", testLALATokenBalance)
-            console.log("usdcTokenBalance", usdcTokenBalance)
+            let testLalaTokenAfterBal = await testLalalaToken.balanceOf(primary.address)
+            let testMumuTokenAfterBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenAfterBal = await usdc.balanceOf(primary.address)
+
+            expect(testLalaTokenAfterBal.sub(testLalaTokenBeforeBal)).to.equal(ethers.utils.parseUnits("100000000000000000000", 0).toString())
+            expect(testMumuTokenAfterBal.sub(testMumuTokenBeforeBal)).to.equal(ethers.utils.parseUnits("100000000000000000000", 0).toString())
+            expect(usdcTokenAfterBal.sub(usdcTokenBeforeBal)).to.equal(ethers.utils.parseUnits("100000000000000000000", 0).toString())
+
+            let crpAfterBalance = await crp.balanceOf(primary.address)
+            expect(crpAfterBalance).to.equal(ethers.utils.parseEther("100").toString())
         })
         it("add liquidity single assets", async () => {
+
+            let testLalaTokenBeforeBal = await testLalalaToken.balanceOf(primary.address)
+            let testMumuTokenBeforeBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenBeforeBal = await usdc.balanceOf(primary.address)
 
             const joinswapExternAmountInData = ifac.encodeFunctionData("joinswapExternAmountIn", [
                 logCaller,
@@ -1020,30 +1049,70 @@ describe("Test Auction", function () {
 
             let bpool = await BPool.attach(poolAddress)
 
-            let testTokenBalance = await bpool.getBalance(testMumuToken.address)
-            let usdcTokenBalance = await bpool.getBalance(usdc.address)
+            expect(await bpool.getBalance(testLalalaToken.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(await bpool.getBalance(testMumuToken.address)).to.equal(ethers.utils.parseUnits("140000000000000000001", 0).toString())
+            expect(await bpool.getBalance(usdc.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(await bpool.getDenormalizedWeight(testLalalaToken.address)).to.equal(ethers.utils.parseEther("11.11").toString())
+            expect(await bpool.getDenormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("11.11").toString())
+            expect(await bpool.getDenormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("11.11").toString())
+            expect(await bpool.getNormalizedWeight(testLalalaToken.address)).to.equal(ethers.utils.parseEther("0.333333333333333333").toString())
+            expect(await bpool.getNormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("0.333333333333333333").toString())
+            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("0.333333333333333333").toString())
 
-            console.log("testTokenBalance", testTokenBalance)
-            console.log("usdcTokenBalance", usdcTokenBalance)
+            let testLalaTokenAfterBal = await testLalalaToken.balanceOf(primary.address)
+            let testMumuTokenAfterBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenAfterBal = await usdc.balanceOf(primary.address)
+
+            expect(testLalaTokenBeforeBal.sub(testLalaTokenAfterBal)).to.equal(ethers.utils.parseUnits("0", 0).toString())
+            expect(testMumuTokenBeforeBal.sub(testMumuTokenAfterBal)).to.equal(ethers.utils.parseUnits("40000000000000000000", 0).toString())
+            expect(usdcTokenBeforeBal.sub(usdcTokenAfterBal)).to.equal(0)
+
+            let dsProxytestMumuTokenAfterBal = await testMumuToken.balanceOf(dsProxy.address)
+            expect(dsProxytestMumuTokenAfterBal).to.equal(ethers.utils.parseUnits("0", 0).toString())
+
+            let crpAfterBalance = await crp.balanceOf(primary.address)
+            expect(crpAfterBalance).to.equal(ethers.utils.parseUnits("111868887103979119700", 0).toString())
         })
         it("remove liquidity single assets", async () => {
+
+            let testLalaTokenBeforeBal = await testLalalaToken.balanceOf(primary.address)
+            let testMumuTokenBeforeBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenBeforeBal = await usdc.balanceOf(primary.address)
 
             let crp = await ConfigurableRightsPool.attach(logCaller)
 
             let exitswapPoolAmountInTx = await crp.connect(primary).exitswapPoolAmountIn(
                 testMumuToken.address,
-                ethers.utils.parseEther("10").toString(),
+                ethers.utils.parseUnits("11868887103979119700",0).toString(),
                 "0"
             )
             console.log("exitswapPoolAmountInTx hash", exitswapPoolAmountInTx.hash)
-            expect(await crp.totalSupply()).to.equal("101868887103979119700")
+            expect(await crp.totalSupply()).to.equal("100000000000000000000")
 
             let bpool = await BPool.attach(poolAddress)
-            let testTokenBalance = await bpool.getBalance(testMumuToken.address)
-            let usdcTokenBalance = await bpool.getBalance(usdc.address)
+            expect(await bpool.getBalance(testLalalaToken.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(await bpool.getBalance(testMumuToken.address)).to.equal(ethers.utils.parseUnits("100000045717959095631", 0).toString())
+            expect(await bpool.getBalance(usdc.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(await bpool.getDenormalizedWeight(testLalalaToken.address)).to.equal(ethers.utils.parseEther("11.11").toString())
+            expect(await bpool.getDenormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("11.11").toString())
+            expect(await bpool.getDenormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("11.11").toString())
+            expect(await bpool.getNormalizedWeight(testLalalaToken.address)).to.equal(ethers.utils.parseEther("0.333333333333333333").toString())
+            expect(await bpool.getNormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("0.333333333333333333").toString())
+            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("0.333333333333333333").toString())
 
-            console.log("testTokenBalance", testTokenBalance)
-            console.log("usdcTokenBalance", usdcTokenBalance)
+            let testLalaTokenAfterBal = await testLalalaToken.balanceOf(primary.address)
+            let testMumuTokenAfterBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenAfterBal = await usdc.balanceOf(primary.address)
+
+            expect(testLalaTokenAfterBal.sub(testLalaTokenBeforeBal)).to.equal(ethers.utils.parseUnits("0", 0).toString())
+            expect(testMumuTokenAfterBal.sub(testMumuTokenBeforeBal)).to.equal(ethers.utils.parseUnits("39999954282040904370", 0).toString())
+            expect(usdcTokenAfterBal.sub(usdcTokenBeforeBal)).to.equal(ethers.utils.parseUnits("0", 0).toString())
+
+            let dsProxytestMumuTokenAfterBal = await testMumuToken.balanceOf(dsProxy.address)
+            expect(dsProxytestMumuTokenAfterBal).to.equal(ethers.utils.parseUnits("0", 0).toString())
+
+            let crpAfterBalance = await crp.balanceOf(primary.address)
+            expect(crpAfterBalance).to.equal(ethers.utils.parseUnits("100000000000000000000", 0).toString())
         })
         it("set swap enable", async () => {
 
@@ -1089,49 +1158,63 @@ describe("Test Auction", function () {
         })
         it("direct increaseWeight", async () => {
 
+
+            let testLalaTokenBeforeBal = await testLalalaToken.balanceOf(primary.address)
+            let testMumuTokenBeforeBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenBeforeBal = await usdc.balanceOf(primary.address)
+
             const increaseWeightData = ifac.encodeFunctionData("increaseWeight", [
                 logCaller,
                 testMumuToken.address,
                 ethers.utils.parseEther("16"),
-                ethers.utils.parseEther("100").toString(),
+                ethers.utils.parseUnits("44014421562630060993",0).toString(),
             ]);
 
 
             let increaseWeightTx = await dsProxy.connect(primary).execute(bActions.address, increaseWeightData)
             console.log("increaseWeightTx hash", increaseWeightTx.hash)
+
+            let crp = await ConfigurableRightsPool.attach(logCaller)
+            console.log("total supply", await crp.totalSupply())
+            expect(await crp.totalSupply()).to.equal("114671467146714671500")
+
+
             let bpool = await BPool.attach(poolAddress)
-            testMumuTokenWeight = await bpool.getNormalizedWeight(testMumuToken.address)
-            testLalaTokenWeight = await bpool.getNormalizedWeight(testLalalaToken.address)
-            usdcTokenWeight = await bpool.getNormalizedWeight(usdc.address)
+            expect(await bpool.getBalance(testLalalaToken.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(await bpool.getBalance(testMumuToken.address)).to.equal(ethers.utils.parseUnits("144014467280589156623", 0).toString())
+            expect(await bpool.getBalance(usdc.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(await bpool.getDenormalizedWeight(testLalalaToken.address)).to.equal(ethers.utils.parseEther("11.11").toString())
+            expect(await bpool.getDenormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("16").toString())
+            expect(await bpool.getDenormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("11.11").toString())
+            expect(await bpool.getNormalizedWeight(testLalalaToken.address)).to.equal(ethers.utils.parseUnits("290685504971219257", 0).toString())
+            expect(await bpool.getNormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseUnits("418628990057561486", 0).toString())
+            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseUnits("290685504971219257", 0).toString())
 
-            console.log("testMumuTokenWeight", testMumuTokenWeight)
-            console.log("testLalaTokenWeight", testLalaTokenWeight)
-            console.log("usdcTokenWeight", usdcTokenWeight)
-            testMumuTokenDWeight = await bpool.getDenormalizedWeight(testMumuToken.address)
-            testLalaTokenDWeight = await bpool.getDenormalizedWeight(testLalalaToken.address)
-            usdcTokenDWeight = await bpool.getDenormalizedWeight(usdc.address)
+            let testLalaTokenAfterBal = await testLalalaToken.balanceOf(primary.address)
+            let testMumuTokenAfterBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenAfterBal = await usdc.balanceOf(primary.address)
 
-            console.log("testMumuTokenDWeight", testMumuTokenDWeight)
-            console.log("testLalaTokenDWeight", testLalaTokenDWeight)
-            console.log("usdcTokenDWeight", usdcTokenDWeight)
+            expect(testLalaTokenBeforeBal.sub(testLalaTokenAfterBal)).to.equal(ethers.utils.parseUnits("0", 0).toString())
+            expect(testMumuTokenBeforeBal.sub(testMumuTokenAfterBal)).to.equal(ethers.utils.parseUnits("44014421562630060992", 0).toString())
+            expect(usdcTokenAfterBal.sub(usdcTokenBeforeBal)).to.equal(ethers.utils.parseUnits("0", 0).toString())
+
+
+            let dsProxytestMumuTokenAfterBal = await testMumuToken.balanceOf(dsProxy.address)
+            expect(dsProxytestMumuTokenAfterBal).to.equal(ethers.utils.parseUnits("0", 0).toString())
+
+            let crpAfterBalance = await crp.balanceOf(primary.address)
+            expect(crpAfterBalance).to.equal(ethers.utils.parseUnits("114671467146714671500", 0).toString())
+
+            let dsproxyAfterBalance = await crp.balanceOf(dsProxy.address)
+            expect(dsproxyAfterBalance).to.equal(ethers.utils.parseUnits("0", 0).toString())
         })
         it("direct decreaseWeight", async () => {
 
+            let testLalaTokenBeforeBal = await testLalalaToken.balanceOf(primary.address)
+            let testMumuTokenBeforeBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenBeforeBal = await usdc.balanceOf(primary.address)
+
             let bpool = await BPool.attach(poolAddress)
-            testMumuTokenWeight = await bpool.getNormalizedWeight(testMumuToken.address)
-            testLalaTokenWeight = await bpool.getNormalizedWeight(testLalalaToken.address)
-            usdcTokenWeight = await bpool.getNormalizedWeight(usdc.address)
-
-            console.log("testMumuTokenWeight", testMumuTokenWeight)
-            console.log("testLalaTokenWeight", testLalaTokenWeight)
-            console.log("usdcTokenWeight", usdcTokenWeight)
-            testMumuTokenDWeight = await bpool.getDenormalizedWeight(testMumuToken.address)
-            testLalaTokenDWeight = await bpool.getDenormalizedWeight(testLalalaToken.address)
-            usdcTokenDWeight = await bpool.getDenormalizedWeight(usdc.address)
-
-            console.log("testMumuTokenDWeight", testMumuTokenDWeight)
-            console.log("testLalaTokenDWeight", testLalaTokenDWeight)
-            console.log("usdcTokenDWeight", usdcTokenDWeight)
 
             let crp = await ConfigurableRightsPool.attach(logCaller)
             await crp.connect(primary).approve(dsProxy.address, ethers.utils.parseEther("1000").toString())
@@ -1140,49 +1223,49 @@ describe("Test Auction", function () {
             const decreaseWeightData = ifac.encodeFunctionData("decreaseWeight", [
                 logCaller,
                 testMumuToken.address,
-                ethers.utils.parseEther("20"),
+                ethers.utils.parseEther("11.11"),
                 ethers.utils.parseEther("100").toString(),
             ]);
 
             let decreaseWeightTx = await dsProxy.connect(primary).execute(bActions.address, decreaseWeightData)
             console.log("decreaseWeightTx hash", decreaseWeightTx.hash)
 
-            testMumuTokenWeight = await bpool.getNormalizedWeight(testMumuToken.address)
-            testLalaTokenWeight = await bpool.getNormalizedWeight(testLalalaToken.address)
-            usdcTokenWeight = await bpool.getNormalizedWeight(usdc.address)
+            expect(await bpool.getBalance(testLalalaToken.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(await bpool.getBalance(testMumuToken.address)).to.equal(ethers.utils.parseUnits("100000045717959095630", 0).toString())
+            expect(await bpool.getBalance(usdc.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(await bpool.getDenormalizedWeight(testLalalaToken.address)).to.equal(ethers.utils.parseEther("11.11").toString())
+            expect(await bpool.getDenormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("11.11").toString())
+            expect(await bpool.getDenormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("11.11").toString())
+            expect(await bpool.getNormalizedWeight(testLalalaToken.address)).to.equal(ethers.utils.parseUnits("333333333333333333", 0).toString())
+            expect(await bpool.getNormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseUnits("333333333333333333", 0).toString())
+            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseUnits("333333333333333333", 0).toString())
 
-            console.log("testMumuTokenWeight", testMumuTokenWeight)
-            console.log("testLalaTokenWeight", testLalaTokenWeight)
-            console.log("usdcTokenWeight", usdcTokenWeight)
-            testMumuTokenDWeight = await bpool.getDenormalizedWeight(testMumuToken.address)
-            testLalaTokenDWeight = await bpool.getDenormalizedWeight(testLalalaToken.address)
-            usdcTokenDWeight = await bpool.getDenormalizedWeight(usdc.address)
+            let testLalaTokenAfterBal = await testLalalaToken.balanceOf(primary.address)
+            let testMumuTokenAfterBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenAfterBal = await usdc.balanceOf(primary.address)
 
-            console.log("testMumuTokenDWeight", testMumuTokenDWeight)
-            console.log("testLalaTokenDWeight", testLalaTokenDWeight)
-            console.log("usdcTokenDWeight", usdcTokenDWeight)
+            expect(testLalaTokenAfterBal.sub(testLalaTokenBeforeBal)).to.equal(ethers.utils.parseUnits("0", 0).toString())
+            expect(testMumuTokenAfterBal.sub(testMumuTokenBeforeBal)).to.equal(ethers.utils.parseUnits("44014421562630060993", 0).toString())
+            expect(usdcTokenAfterBal.sub(usdcTokenBeforeBal)).to.equal(ethers.utils.parseUnits("0", 0).toString())
+
+            let crpAfterBalance = await crp.balanceOf(primary.address)
+            expect(crpAfterBalance).to.equal(ethers.utils.parseUnits("100000000000000000052", 0).toString())
+            let dsproxyAfterBalance = await crp.balanceOf(dsProxy.address)
+            expect(dsproxyAfterBalance).to.equal(ethers.utils.parseUnits("0", 0).toString())
         })
         it("gradually  updateWeight", async () => {
+
+
+            let testLalaTokenBeforeBal = await testLalalaToken.balanceOf(primary.address)
+            let testMumuTokenBeforeBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenBeforeBal = await usdc.balanceOf(primary.address)
 
             let currentBlockNumber = await ethers.provider.getBlockNumber()
             let startBlockNumber = currentBlockNumber + 10
             let endBlockNumber = startBlockNumber + 20
 
+            let crp = await ConfigurableRightsPool.attach(logCaller)
             let bpool = await BPool.attach(poolAddress)
-            testMumuTokenWeight = await bpool.getNormalizedWeight(testMumuToken.address)
-            testLalaTokenWeight = await bpool.getNormalizedWeight(testLalalaToken.address)
-            usdcTokenWeight = await bpool.getNormalizedWeight(usdc.address)
-
-            console.log("testMumuTokenWeight", testMumuTokenWeight)
-            console.log("testLalaTokenWeight", testLalaTokenWeight)
-            console.log("usdcTokenWeight", usdcTokenWeight)
-            testMumuTokenDWeight = await bpool.getDenormalizedWeight(testMumuToken.address)
-            testLalaTokenDWeight = await bpool.getDenormalizedWeight(testLalalaToken.address)
-            usdcTokenDWeight = await bpool.getDenormalizedWeight(usdc.address)
-
-            console.log("testMumuTokenDWeight", testMumuTokenDWeight)
-            console.log("testLalaTokenDWeight", testLalaTokenDWeight)
-            console.log("usdcTokenDWeight", usdcTokenDWeight)
 
             const newWeights = [
                 ethers.utils.parseEther("9.11").toString(),
@@ -1201,46 +1284,93 @@ describe("Test Auction", function () {
             let increaseWeightTx = await dsProxy.connect(primary).execute(bActions.address, increaseWeightData)
             console.log("increaseWeightTx hash", increaseWeightTx.hash)
             await advanceBlockTo(startBlockNumber + 1)
-            let crp = await ConfigurableRightsPool.attach(logCaller)
+
 
             for (let i = startBlockNumber + 1; i < endBlockNumber; i++) {
                 console.log("current block:", await ethers.provider.getBlockNumber())
                 await crp.connect(primary).pokeWeights()
-                testMumuTokenWeight = await bpool.getNormalizedWeight(testMumuToken.address)
-                testLalaTokenWeight = await bpool.getNormalizedWeight(testLalalaToken.address)
-                usdcTokenWeight = await bpool.getNormalizedWeight(usdc.address)
-
-                console.log("testMumuTokenWeight", testMumuTokenWeight)
-                console.log("testLalaTokenWeight", testLalaTokenWeight)
-                console.log("usdcTokenWeight", usdcTokenWeight)
-                testMumuTokenDWeight = await bpool.getDenormalizedWeight(testMumuToken.address)
-                testLalaTokenDWeight = await bpool.getDenormalizedWeight(testLalalaToken.address)
-                usdcTokenDWeight = await bpool.getDenormalizedWeight(usdc.address)
-
-                console.log("testMumuTokenDWeight", testMumuTokenDWeight)
-                console.log("testLalaTokenDWeight", testLalaTokenDWeight)
-                console.log("usdcTokenDWeight", usdcTokenDWeight)
             }
             await advanceBlockTo(endBlockNumber + 1)
 
             await crp.connect(primary).pokeWeights()
-            testMumuTokenWeight = await bpool.getNormalizedWeight(testMumuToken.address)
-            testLalaTokenWeight = await bpool.getNormalizedWeight(testLalalaToken.address)
-            usdcTokenWeight = await bpool.getNormalizedWeight(usdc.address)
+            await crp.connect(primary).pokeWeights()
+            console.log("total supply", await crp.totalSupply())
+            expect(await crp.totalSupply()).to.equal("100000000000000000052")
 
-            console.log("testMumuTokenWeight", testMumuTokenWeight)
-            console.log("testLalaTokenWeight", testLalaTokenWeight)
-            console.log("usdcTokenWeight", usdcTokenWeight)
-            testMumuTokenDWeight = await bpool.getDenormalizedWeight(testMumuToken.address)
-            testLalaTokenDWeight = await bpool.getDenormalizedWeight(testLalalaToken.address)
-            usdcTokenDWeight = await bpool.getDenormalizedWeight(usdc.address)
+            expect(await bpool.getBalance(testLalalaToken.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(await bpool.getBalance(testMumuToken.address)).to.equal(ethers.utils.parseUnits("100000045717959095630", 0).toString())
+            expect(await bpool.getBalance(usdc.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(await bpool.getDenormalizedWeight(testLalalaToken.address)).to.equal(ethers.utils.parseEther("15.11").toString())
+            expect(await bpool.getDenormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("9.11").toString())
+            expect(await bpool.getDenormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("15.11").toString())
+            expect(await bpool.getNormalizedWeight(testLalalaToken.address)).to.equal(ethers.utils.parseUnits("384185100432240020", 0).toString())
+            expect(await bpool.getNormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseUnits("231629799135519959", 0).toString())
+            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseUnits("384185100432240020", 0).toString())
 
-            console.log("testMumuTokenDWeight", testMumuTokenDWeight)
-            console.log("testLalaTokenDWeight", testLalaTokenDWeight)
-            console.log("usdcTokenDWeight", usdcTokenDWeight)
+            let testLalaTokenAfterBal = await testLalalaToken.balanceOf(primary.address)
+            let testMumuTokenAfterBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenAfterBal = await usdc.balanceOf(primary.address)
+
+            expect(testLalaTokenAfterBal.sub(testLalaTokenBeforeBal)).to.equal(ethers.utils.parseUnits("0", 0).toString())
+            expect(testMumuTokenAfterBal.sub(testMumuTokenBeforeBal)).to.equal(ethers.utils.parseUnits("0", 0).toString())
+            expect(usdcTokenAfterBal.sub(usdcTokenBeforeBal)).to.equal(ethers.utils.parseUnits("0", 0).toString())
+
+            let crpAfterBalance = await crp.balanceOf(primary.address)
+            expect(crpAfterBalance).to.equal(ethers.utils.parseUnits("100000000000000000052", 0).toString())
+
+
+            const newWeights2 = [
+                ethers.utils.parseEther("11.11").toString(),
+                ethers.utils.parseEther("11.11").toString(),
+                ethers.utils.parseEther("11.11").toString()
+            ];
+            currentBlockNumber = await ethers.provider.getBlockNumber()
+            startBlockNumber = currentBlockNumber + 10
+            endBlockNumber = startBlockNumber + 20
+
+            const increaseWeightData2 = ifac.encodeFunctionData("updateWeightsGradually", [
+                logCaller,
+                newWeights2,
+                startBlockNumber,
+                endBlockNumber,
+            ]);
+            let increaseWeightTx2 = await dsProxy.connect(primary).execute(bActions.address, increaseWeightData2)
+
+
+            await advanceBlockTo(endBlockNumber + 1)
+
+            await crp.connect(primary).pokeWeights()
+            console.log("total supply", await crp.totalSupply())
+            expect(await crp.totalSupply()).to.equal("100000000000000000052")
+
+            expect(await bpool.getBalance(testLalalaToken.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(await bpool.getBalance(testMumuToken.address)).to.equal(ethers.utils.parseUnits("100000045717959095630", 0).toString())
+            expect(await bpool.getBalance(usdc.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(await bpool.getDenormalizedWeight(testLalalaToken.address)).to.equal(ethers.utils.parseEther("11.11").toString())
+            expect(await bpool.getDenormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("11.11").toString())
+            expect(await bpool.getDenormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("11.11").toString())
+            expect(await bpool.getNormalizedWeight(testLalalaToken.address)).to.equal(ethers.utils.parseUnits("333333333333333333", 0).toString())
+            expect(await bpool.getNormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseUnits("333333333333333333", 0).toString())
+            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseUnits("333333333333333333", 0).toString())
+
+            testLalaTokenAfterBal = await testLalalaToken.balanceOf(primary.address)
+            testMumuTokenAfterBal = await testMumuToken.balanceOf(primary.address)
+            usdcTokenAfterBal = await usdc.balanceOf(primary.address)
+
+            expect(testLalaTokenAfterBal.sub(testLalaTokenBeforeBal)).to.equal(ethers.utils.parseUnits("0", 0).toString())
+            expect(testMumuTokenAfterBal.sub(testMumuTokenBeforeBal)).to.equal(ethers.utils.parseUnits("0", 0).toString())
+            expect(usdcTokenAfterBal.sub(usdcTokenBeforeBal)).to.equal(ethers.utils.parseUnits("0", 0).toString())
+
+            crpAfterBalance = await crp.balanceOf(primary.address)
+            expect(crpAfterBalance).to.equal(ethers.utils.parseUnits("100000000000000000052", 0).toString())
 
         })
         it("swap in", async () => {
+
+            let testMumuTokenBeforeBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenBeforeBal = await usdc.balanceOf(primary.address)
+
+            let crp = await ConfigurableRightsPool.attach(logCaller)
 
             let bpool = await BPool.attach(poolAddress)
             await testMumuToken.connect(primary).approve(exchangeProxy.address, ethers.utils.parseEther("1000").toString())
@@ -1273,11 +1403,25 @@ describe("Test Auction", function () {
             console.log("swapInTx hash", swapInTx.hash)
 
 
-            testTokenBalance = await bpool.getBalance(testMumuToken.address)
-            usdcTokenBalance = await bpool.getBalance(usdc.address)
+            console.log("total supply", await crp.totalSupply())
+            expect(await crp.totalSupply()).to.equal("100000000000000000052")
 
-            console.log("testTokenBalance", testTokenBalance)
-            console.log("usdcTokenBalance", usdcTokenBalance)
+            expect(await bpool.getBalance(testLalalaToken.address)).to.equal(ethers.utils.parseUnits("100000000000000000001", 0).toString())
+            expect(await bpool.getBalance(testMumuToken.address)).to.equal(ethers.utils.parseUnits("90925664409855515174", 0).toString())
+            expect(await bpool.getBalance(usdc.address)).to.equal(ethers.utils.parseUnits("110000000000000000001", 0).toString())
+            expect(await bpool.getDenormalizedWeight(testLalalaToken.address)).to.equal(ethers.utils.parseEther("11.11").toString())
+            expect(await bpool.getDenormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseEther("11.11").toString())
+            expect(await bpool.getDenormalizedWeight(usdc.address)).to.equal(ethers.utils.parseEther("11.11").toString())
+            expect(await bpool.getNormalizedWeight(testLalalaToken.address)).to.equal(ethers.utils.parseUnits("333333333333333333", 0).toString())
+            expect(await bpool.getNormalizedWeight(testMumuToken.address)).to.equal(ethers.utils.parseUnits("333333333333333333", 0).toString())
+            expect(await bpool.getNormalizedWeight(usdc.address)).to.equal(ethers.utils.parseUnits("333333333333333333", 0).toString())
+
+            let testMumuTokenAfterBal = await testMumuToken.balanceOf(primary.address)
+            let usdcTokenAfterBal = await usdc.balanceOf(primary.address)
+            expect(testMumuTokenAfterBal.sub(testMumuTokenBeforeBal)).to.equal(ethers.utils.parseUnits("9074381308103580456", 0).toString())
+            expect(usdcTokenBeforeBal.sub(usdcTokenAfterBal)).to.equal(ethers.utils.parseUnits("10000000000000000000", 0).toString())
+            let crpAfterBalance = await crp.balanceOf(primary.address)
+            expect(crpAfterBalance).to.equal(ethers.utils.parseUnits("100000000000000000052", 0).toString())
 
         })
     })
